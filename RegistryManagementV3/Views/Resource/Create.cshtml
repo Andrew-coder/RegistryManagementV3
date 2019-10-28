@@ -1,0 +1,109 @@
+﻿@model Tuple<RegistryManagementV3.Models.ResourceViewModel, long?>
+
+@{
+    ViewBag.Title = "Створити ресурс";
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <link href="~/Content/selectize.default.css" rel="stylesheet" />
+}
+
+<h2>Зареєструвати</h2>
+
+@using (Html.BeginForm("Create", "Resource", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>ресурс</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.HiddenFor(model => model.Item1.CatalogId, new { Value = Model.Item2 })
+
+            @Html.LabelFor(model => model.Item1.Title, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Item1.Title, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Item1.Title, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Item1.Description, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Item1.Description, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Item1.Description, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Item1.Language, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Item1.Language, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Item1.Language, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Item1.SecurityLevel, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Item1.SecurityLevel, new { htmlAttributes = new { @class = "form-control", min=1, max=10 } })
+                @Html.ValidationMessageFor(model => model.Item1.SecurityLevel, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Item1.Format, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Item1.Format, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Item1.Format, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Item1.ResourceLocation, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Item1.ResourceLocation, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Item1.ResourceLocation, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Item1.Tags, new { @class = "control-label col-md-2" })
+            <div class="col-md-3">
+                <input id="select-with-type" name="Tags" />
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.ValidationMessageFor(model => model.Item1.ResourceFile)
+            <input type="file" name="ResourceFile">
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Створити" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Повернутись до ресурсів", "Index", "Catalog")
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/selectize.jquery.js"></script>
+    <script src="~/Scripts/selectize.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#select-with-type").selectize({
+                delimiter: ',',
+                persist: false,
+                placeholder: "Введіть теги",
+                create: input => {
+                    return {
+                        value: input,
+                        text: input
+                    }
+                }
+            });
+        });
+    </script>
+}

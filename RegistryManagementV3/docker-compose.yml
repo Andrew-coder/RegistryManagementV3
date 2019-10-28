@@ -1,0 +1,21 @@
+version: "3"
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    depends_on:
+      - mssql
+  
+  mssql:
+    image: "mcr.microsoft.com/mssql/server:2017-CU14-ubuntu"
+    ports:
+      - 1433:1433
+    volumes:
+      - mssql-data:/var/opt/mssql
+    environment:
+      SA_PASSWORD: "Test@123"
+      ACCEPT_EULA: "Y"
+      
+volumes:
+  mssql-data:

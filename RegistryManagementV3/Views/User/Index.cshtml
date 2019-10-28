@@ -1,0 +1,63 @@
+﻿@using RegistryManagementV3.Models.Domain
+@model IEnumerable<RegistryManagementV3.Models.Domain.ApplicationUser>
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Користувачі</h2>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.UserName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.AccountStatus)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Email)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.PhoneNumber)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.AccessFailedCount)
+        </th>
+
+        <th></th>
+    </tr>
+
+@foreach (var user in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => user.UserName)
+        </td>
+        <td>
+            @if (user.AccountStatus != AccountStatus.Approved)
+            {
+                <span class="label label-danger">НЕПІДТВЕРДЖЕНИЙ</span>
+            }
+            else
+            {
+                @Html.DisplayFor(modelItem => user.AccountStatus)
+            }
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => user.Email)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => user.PhoneNumber)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => user.AccessFailedCount)
+        </td>
+
+        <td>
+            @Html.ActionLink("Редагувати", "Edit", new {id = user.Id}) |
+            @Html.ActionLink("Деталі", "Details", new {id = user.Id}) |
+            @Html.ActionLink("Видалити", "Delete", new {id = user.Id})
+        </td>
+    </tr>
+}
+
+</table>

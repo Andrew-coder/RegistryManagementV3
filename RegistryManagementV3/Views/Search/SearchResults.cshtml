@@ -1,0 +1,39 @@
+﻿@* @using RegistryManagementV3.Models *@
+@* @using RegistryManagementV3.Models.Domain *@
+@* @model IEnumerable<RegistryManagementV3.Models.Domain.Resource> *@
+@* *@
+@* @{ *@
+@*     ViewBag.Title = "SearchResults"; *@
+@* } *@
+@* *@
+@* <br /> *@
+@* @Html.Partial("~/Views/Catalog/AdvanceSearch.cshtml", new SearchViewModel()) *@
+@* <br /> *@
+@* *@
+@* <h2>Результати пошуку</h2> *@
+@* *@
+@* <table class="table"> *@
+@*     @if (Model.Count() <= 0) *@
+@*     { *@
+@*         <p>Ресурси відсутні</p> *@
+@*     } *@
+@*     @foreach (var resource in Model) *@
+@*     { *@
+@*         <div class="card" style="width: 18rem;"> *@
+@*             <div class="card-body"> *@
+@*                 @if (User.IsInRole("Admin") && resource.ResourceStatus != ResourceStatus.Approved) *@
+@*                 { *@
+@*                     <span class="label label-danger">НЕЗАТВЕРДЖЕНИЙ</span> *@
+@*                 } *@
+@*                 <h4 class="card-title">@Html.DisplayFor(modelItem => resource.Title)</h4> *@
+@*                 @if (resource.Catalog != null) *@
+@*                 { *@
+@*                     <h5 class="card-title">@Html.DisplayFor(modelItem => resource.Catalog.Name)</h5> *@
+@*                 } *@
+@*                 <h6 class="card-subtitle mb-2 text-muted">Ресурс</h6> *@
+@*                 <a href=@Url.Action("Edit", "Resource", new {id = resource.Id}) class="card-link">Переглянути характеристики</a> *@
+@*                 <a href=@Url.Action("Delete", "Resource", new {id = resource.Id}) class="card-link">Видалити</a> *@
+@*             </div> *@
+@*         </div> *@
+@*     } *@
+@* </table> *@

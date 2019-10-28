@@ -1,0 +1,116 @@
+﻿@using RegistryManagementV3.Models.Domain
+@model Tuple<RegistryManagementV3.Models.ApplicationUserViewModel, List<UserGroup>>
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "_Layout";
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <link href="~/Content/selectize.default.css" rel="stylesheet" />
+}
+
+<h2>Редагування користувача</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>@Html.LabelFor(model => model.Item1.UserName)</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.Item1.Id)
+
+         <div class="form-group">
+             @Html.LabelFor(model => model.Item1.AccountStatus, htmlAttributes: new { @class = "control-label col-md-2" })
+             <div class="col-md-10">
+                 @*@Html.EnumDropDownListFor(model => model.AccountStatus, htmlAttributes: new { @class = "form-control" })*@
+                 <span class="label label-default">
+                     @Html.Raw(Model.Item1.AccountStatus)
+                 </span>
+                 @Html.ValidationMessageFor(model => model.Item1.AccountStatus, "", new { @class = "text-danger" })
+             </div>
+         </div>
+
+         <div class="form-group">
+             @Html.LabelFor(model => model.Item1.Email, htmlAttributes: new { @class = "control-label col-md-2" })
+             <div class="col-md-10">
+                 @Html.EditorFor(model => model.Item1.Email, new { htmlAttributes = new { @class = "form-control" } })
+                 @Html.ValidationMessageFor(model => model.Item1.Email, "", new { @class = "text-danger" })
+             </div>
+         </div>
+
+         <div class="form-group">
+             @Html.LabelFor(model => model.Item1.PhoneNumber, htmlAttributes: new { @class = "control-label col-md-2" })
+             <div class="col-md-10">
+                 @Html.EditorFor(model => model.Item1.PhoneNumber, new { htmlAttributes = new { @class = "form-control" } })
+                 @Html.ValidationMessageFor(model => model.Item1.PhoneNumber, "", new { @class = "text-danger" })
+             </div>
+         </div>
+
+         <div class="form-group">
+             @Html.LabelFor(model => model.Item1.AccessFailedCount, htmlAttributes: new { @class = "control-label col-md-2" })
+             <div class="col-md-10">
+                 @Html.EditorFor(model => model.Item1.AccessFailedCount, new { htmlAttributes = new { @class = "form-control" } })
+                 @Html.ValidationMessageFor(model => model.Item1.AccessFailedCount, "", new { @class = "text-danger" })
+             </div>
+         </div>
+
+         <div class="form-group">
+             @Html.LabelFor(model => model.Item1.UserName, htmlAttributes: new { @class = "control-label col-md-2" })
+             <div class="col-md-10">
+                 @Html.EditorFor(model => model.Item1.UserName, new { htmlAttributes = new { @class = "form-control" } })
+                 @Html.ValidationMessageFor(model => model.Item1.UserName, "", new { @class = "text-danger" })
+             </div>
+         </div>
+
+         <div class="form-group">
+             @Html.LabelFor(model => model.Item1.UserGroup, htmlAttributes: new { @class = "control-label col-md-2" })
+             <div class="col-md-3">
+                 <input id="select-with-type" name="Groups" />
+             </div>
+         </div>
+
+         <div class="form-group">
+             <div class="col-md-offset-2 col-md-10">
+                 <input type="submit" value="Зберегти" class="d-inline btn btn-default" />
+                 @if (Model.Item1.AccountStatus != AccountStatus.Approved.ToString())
+                 {
+                     <a href=@Url.Action("Approve", "User", new {id = Model.Item1.Id}) class="d-inline btn btn-info" role="button">Підтвердити</a>
+                 }
+             </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Повернутись назад", "Index")
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/selectize.jquery.js"></script>
+    <script src="~/Scripts/selectize.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            let groups = @Html.Raw(Json.Serialize(@Model.Item2.Select(group => group.Name)));
+            groups.forEach((group, i) => groups[i] = { "value": group, "name": group});
+            console.log(groups);
+            const $select = $("#select-with-type").selectize({
+                options: groups,
+                labelField: 'name',
+                searchField: ['name'],
+                placeholder: "Введіть назву групи",
+                preload: true,
+                maxItems: 1,
+                create: input => {
+                    return {
+                        value: name,
+                        text: name
+                    }
+                }
+            });
+            let selectize = $select[0].selectize;
+            selectize.setValue("@Model.Item1.UserGroup");
+        });
+    </script>
+
+}

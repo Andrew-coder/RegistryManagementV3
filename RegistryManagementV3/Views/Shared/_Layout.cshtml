@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <link href="~/Static/Styles/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="~/Static/Styles/selectize.bootstrap3.css" rel="stylesheet" type="text/css" />
+    <link href="~/Static/Styles/selectize.css" rel="stylesheet" type="text/css" />
+    <link href="~/Static/Styles/selectize.default.css" rel="stylesheet" type="text/css" />
+    <link href="~/Static/Styles/Site.css" rel="stylesheet" type="text/css" />
+    
+ </head>
+ <body>
+ 
+ <nav class="navbar navbar-default navbar-fixed-top"> 
+     <div class="container-fluid">
+         <div class="navbar-header">
+             <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target=".js-navbar"> 
+                 <span class="sr-only">Toggle navigation</span> 
+                 <span class="icon-bar"></span> 
+                 <span class="icon-bar"></span> 
+                 <span class="icon-bar"></span> 
+             </button> 
+             @Html.ActionLink("Реєстр кафедри", "Index", "Home", 
+                 new { @style= "padding:15px 15px;"}, new {@class = "navbar-brand" }) 
+         </div>
+      
+         <div class="collapse navbar-collapse js-navbar">
+             <ul class="nav navbar-nav"> 
+                 <li>@Html.ActionLink("Ресурси", "Index", "Catalog")</li> 
+                 @if (User.Identity.IsAuthenticated && User.IsInRole("User")) 
+                 { 
+                     <li class="dropdown"> 
+                         <a id="drop1" href="#" class="dropdown-toggle" data-toggle="dropdown"> 
+                             Профіль користувача 
+ 
+                         </a> 
+                     </li> 
+                 } 
+ 
+                 @if (User.Identity.IsAuthenticated && User.IsInRole("Admin")) 
+                 { 
+                     <li>@Html.ActionLink("Управління користувачами", "Index", "User")</li> 
+                     <li>@Html.ActionLink("Групи користувачів", "Index", "UserGroups")</li> 
+                 } 
+ 
+ 
+                 @if (!User.Identity.IsAuthenticated) 
+                 { 
+                     <li class="dropdown"> 
+                         @Html.ActionLink("Логін/Реєстрація", "Login", "Account", 
+                             new {@style = "padding:15px 15px;"}, new {@class = "dropdown-toggle"}) 
+                     </li> 
+                 } 
+ 
+                 @if (User.Identity.IsAuthenticated) 
+                 { 
+                     <li class="dropdown"> 
+                         @Html.ActionLink("Вийти", "LogOff", "Account") 
+ 
+                     </li> 
+                 } 
+             </ul> 
+              
+             <div class="col-xs-4 col-sm-3 col-md-3 col-lg-3"> 
+                 <form class="navbar-form" role="search"> 
+                     <div class="input-group"> 
+                         <input type="text" class="form-control" placeholder="Пошук" name="q"> 
+                         <div class="input-group-btn"> 
+                             <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button> 
+                         </div> 
+                     </div> 
+                 </form> 
+             </div> 
+         </div> 
+     </div> 
+ </nav>
+ <div class="container body-content"> 
+     @RenderBody() 
+     <hr /> 
+     <footer class="navbar-fixed-bottom"> 
+         <p>&copy; @DateTime.Now.Year - Реєстр кафедри</p> 
+     </footer> 
+ </div> 
+ 
+ <script type="text/javascript" src="~/Static/Scripts/bootstrap.js"></script>
+ <script type="text/javascript" src="~/Static/Scripts/jquery-1.10.2.js"></script>
+ @RenderSection("Scripts", required:false)
+ </body> 
+ </html> 

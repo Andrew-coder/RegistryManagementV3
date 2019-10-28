@@ -1,0 +1,65 @@
+﻿@using RegistryManagementV3.Models
+@using RegistryManagementV3.Models.Domain;
+@model Tuple<IList<Catalog>, IList<Resource>, long?>
+@{
+    ViewBag.Title = "Index";
+    Layout = "_Layout";
+    <link href="~/Content/selectize.css" rel="stylesheet"/>
+    <link href="~/Content/selectize.default.css" rel="stylesheet"/>
+    <link href="~/Content/selectize.bootstrap3.css" rel="stylesheet"/>
+}
+
+<br />
+@Html.Partial("~/Views/Catalog/AdvanceSearch.cshtml", new SearchViewModel())
+<br />
+<a href="#" class="d-inline btn btn-info disabled" role="button">Назад</a>
+@if (User.IsInRole("Admin"))
+{
+    <a href=@Url.Action("Create", "Catalog", new
+             {
+                 catalogId = Model.Item3
+             }, null) class="d-inline btn btn-info" role="button">Створити каталог</a>
+    <a href=@Url.Action("Delete", "Catalog", new
+            {
+                catalogId = Model.Item3
+            }, null) class="d-inline btn btn-danger">Видалити поточний каталог</a>
+}
+    <a href=@Url.Action("Create", "Resource", new
+        {
+            catalogId = Model.Item3
+        }, null) class="d-inline btn btn-info" role="button">Створити ресурс</a>
+<br />
+<br />
+@if (Model.Item1.Count > 0)
+{
+    <div class="list-group">
+        @foreach (var catalog in Model.Item1)
+        {
+            @Html.ActionLink(catalog.Name, "Index", "Catalog", new
+            {
+                catalogId = catalog.Id
+            },
+                          new { @class = "list-group-item" })
+        }
+    </div>
+}
+@Html.Partial("~/Views/Resource/Index.cshtml", Model.Item2)
+@section Scripts {
+     <script src="~/Scripts/selectize.jquery.js"></script>
+     <script src="~/Scripts/selectize.js"></script>
+     <script type="text/javascript">
+         $(document).ready(function () {
+             $("#select-with-type").selectize({
+                 delimiter: ',',
+                persist: false,
+                placeholder: "Введіть теги",
+                create: input => {
+                    return {
+                        value: input,
+                        text: input
+                    }
+                }
+            });
+        });
+    </script>
+}

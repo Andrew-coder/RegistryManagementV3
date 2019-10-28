@@ -1,0 +1,28 @@
+﻿@using RegistryManagementV3.Models.Domain
+@model IEnumerable<RegistryManagementV3.Models.Domain.Resource>
+@{
+    ViewBag.Title = "Index";
+    Layout = "_Layout";
+}
+<h2>Ресурси</h2>
+@if (Model.Count() <= 0)
+{
+    <p>Ресурси відсутні</p>
+}
+<table class="table">
+     @foreach (var resource in Model)
+     {
+         <div class="card" style="width: 18rem;">
+             <div class="card-body">
+                 @if (User.IsInRole("Admin") && resource.ResourceStatus != ResourceStatus.Approved)
+                 {
+                     <span class="label label-danger">НЕЗАТВЕРДЖЕНИЙ</span>
+                 }
+                 <h4 class="card-title">@Html.DisplayFor(modelItem => resource.Title)</h4>
+                 <h6 class="card-subtitle mb-2 text-muted">Ресурс</h6>
+                 <a href=@Url.Action("Edit", "Resource", new {id = resource.Id}) class="card-link">Переглянути характеристики</a>
+                <a href=@Url.Action("Delete", "Resource", new {id = resource.Id}) class="card-link">Видалити</a>
+            </div>
+         </div>
+    }
+</table>
