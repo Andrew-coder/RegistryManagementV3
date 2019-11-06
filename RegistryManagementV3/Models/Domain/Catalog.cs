@@ -14,6 +14,5 @@ namespace RegistryManagementV3.Models.Domain
         public long? SuperCatalogId { get; set; }
         [ForeignKey("SuperCatalogId")]
         public Catalog SuperCatalog { get; set; }
-        public ICollection<UserGroupCatalogs> UserGroups { get; set; }
     }
 }

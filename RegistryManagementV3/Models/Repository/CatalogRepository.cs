@@ -11,12 +11,12 @@ namespace RegistryManagementV3.Models.Repository
            
         }
 
-        public List<Catalog> FindRootCatalogs(UserGroup userGroup)
+        public List<Catalog> FindRootCatalogsFilteredBySecurityLevel(int securityLevel)
         {
-            var catalogs = userGroup.Catalogs.Select(catalog => catalog.CatalogId).ToArray();
+//            var catalogs = userGroup.Catalogs.Select(catalog => catalog.CatalogId).ToArray();
             return Context.Catalogs
                 .Where(catalog => catalog.SuperCatalog == null)
-                .Where(catalog => catalogs.Contains(catalog.Id))
+                .Where(catalog => catalog.SecurityLevel >= securityLevel)
                 .ToList();
         }
         
@@ -27,12 +27,12 @@ namespace RegistryManagementV3.Models.Repository
                 .ToList();
         }
         
-        public List<Catalog> GetChildCatalogsByUserGroup(long catalogId, UserGroup userGroup)
+        public List<Catalog> GetChildCatalogsFilteredBySecurityLevel(long catalogId, int securityLevel)
         {
-            var catalogs = userGroup.Catalogs.Select(catalog => catalog.CatalogId).ToArray();
+            //var catalogs = userGroup.Catalogs.Select(catalog => catalog.CatalogId).ToArray();
             return Context.Catalogs
                 .Where(catalog => catalog.SuperCatalogId == catalogId)
-                .Where(catalog => catalogs.Contains(catalog.Id))
+                .Where(catalog => catalog.SecurityLevel >= securityLevel)
                 .ToList();
         }
     }

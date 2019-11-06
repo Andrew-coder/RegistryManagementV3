@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RegistryManagementV3.Models.Domain
 {
-    public sealed class Tag
+    public class Tag
     {
         public Tag()
         {
@@ -17,13 +17,14 @@ namespace RegistryManagementV3.Models.Domain
             TagValue = tagValue;
         }
 
+        [Key]
         public long Id { get; set; }
 
         [StringLength(30)]
         [Column(TypeName = "NVARCHAR(50)")]
         [Required]
         public string TagValue { get; set; }
-        public ICollection<TagResources> Resources { get; set; }
+        public ICollection<TagResources> TagResources { get; set; }
 
         private bool Equals(Tag other)
         {

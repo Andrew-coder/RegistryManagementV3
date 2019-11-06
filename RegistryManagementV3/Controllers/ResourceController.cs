@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using RegistryManagementV3.Controllers.Attributes;
+using Microsoft.EntityFrameworkCore;
 using RegistryManagementV3.Models;
 using RegistryManagementV3.Models.Domain;
 using RegistryManagementV3.Models.Repository;
@@ -8,7 +10,6 @@ using RegistryManagementV3.Services;
 
 namespace RegistryManagementV3.Controllers
 {
-    //[ClaimsAuthorize(AccountStatus = AccountStatus.Approved)]
     public class ResourceController : Controller
     {
         private const int DefaultSecurityLevel = 5;
@@ -48,9 +49,8 @@ namespace RegistryManagementV3.Controllers
                 securityLevel = catalog.SecurityLevel;
             }
 
-            var createdResource = new ResourceViewModel {SecurityLevel = securityLevel};
-            var tuple = new Tuple<ResourceViewModel, long?>(createdResource, catalogId);
-            return View(tuple);
+            var createdResource = new ResourceViewModel {SecurityLevel = securityLevel, CatalogId = catalogId.GetValueOrDefault()};
+            return View(createdResource);
         }
 
         // POST: Resource/Create
@@ -60,22 +60,18 @@ namespace RegistryManagementV3.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(ResourceViewModel resourceViewModel)
         {
-            long? catalogId = 0;
-//            if (ModelState.IsValid)
-//            {
-                try
-                {    
-                    catalogId = resourceViewModel.CatalogId ?? default(int);
-                    _resourceService.CreateResource(resourceViewModel, catalogId ?? 0);
-                    return RedirectToAction("Index", "Catalog");  
-                }
-                catch (Exception ex)
-                {
-                    ViewBag.Message = "ERROR:" + ex.Message.ToString();
-                } 
-//            }
-            var tuple = new Tuple<ResourceViewModel, long?>(resourceViewModel, catalogId);
-            return View(tuple);
+            var catalogId = resourceViewModel.CatalogId ?? 0;
+            try
+            {
+                _resourceService.CreateResource(resourceViewModel, catalogId);
+                return RedirectToAction("Index", "Catalog");
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = "ERROR:" + ex.Message.ToString();
+            }
+
+            return View(resourceViewModel);
         }
 
         // GET: Resource/Edit/5
@@ -85,13 +81,18 @@ namespace RegistryManagementV3.Controllers
             {
                 return new StatusCodeResult(400);
             }
-            var resource = _db.Resources.Find(id);
+
+            var resource = _db.Resources
+                .Include(s => s.Catalog)
+                .Include(s => s.TagResources)
+                .ThenInclude(tr => tr.Tag)
+                .FirstOrDefault();
+            
             if (resource == null)
             {
                 return new StatusCodeResult(404);
             }
-            var tuple = new Tuple<Resource, long?>(resource, resource.CatalogId);
-            return View(tuple);
+            return View(resource);
         }
 
         // POST: Resource/Edit/5
@@ -114,8 +115,7 @@ namespace RegistryManagementV3.Controllers
             {
                 _resourceService.UpdateResource(resourceViewModel, resource);
             }
-            var tuple = new Tuple<Resource, long?>(resource, resource.CatalogId);
-            return View(tuple);
+            return View(resource);
         }
 
         // GET: Resource/Delete/5
@@ -143,20 +143,11 @@ namespace RegistryManagementV3.Controllers
             _db.SaveChanges();
             return RedirectToAction("Index", "Catalog");
         }
-//
-//        protected override void Dispose(bool disposing)
-//        {
-//            if (disposing)
-//            {
-//                _db.Dispose();
-//            }
-//            base.Dispose(disposing);
-//        }
 
-        public ActionResult ViewResourceDocument(string fileName)
+        public IActionResult DownloadResourceDocument(string fileName)
         {
-            System.Diagnostics.Process.Start(fileName);
-            return RedirectToAction("Index", "Catalog");
+            var file = Path.Combine(fileName);
+            return File(System.IO.File.ReadAllBytes(file), "application/octet-stream", fileName);
         }
     }
 }

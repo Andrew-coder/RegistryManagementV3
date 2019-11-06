@@ -23,7 +23,12 @@ namespace RegistryManagementV3.Services
         {
             return _uow.TagRepository.CheckIfExists(tagValue) 
                 ? _uow.TagRepository.FindTagByText(tagValue) 
-                : new Tag(tagValue);
+                : CreateNewTag(tagValue);
+        }
+
+        private Tag CreateNewTag(string tagValue)
+        {
+            return new Tag {TagValue = tagValue, TagResources = new List<TagResources>()};
         }
     }
 }

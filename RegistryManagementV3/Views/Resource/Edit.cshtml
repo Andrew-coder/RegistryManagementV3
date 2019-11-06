@@ -1,60 +1,62 @@
 ﻿@using RegistryManagementV3.Models.Domain
-@model Tuple<Resource, long?>
+@model Resource
 
 @{
     ViewBag.Title = "Edit";
     <link href="~/Content/selectize.css" rel="stylesheet" />
     <link href="~/Content/selectize.default.css" rel="stylesheet" />
-}
+}    
 
 <h2>Edit</h2>
 
 @using (Html.BeginForm("Edit", "Resource", FormMethod.Post))
 {
     @Html.AntiForgeryToken()
-    @Html.HiddenFor(model => model.Item1.Id)
-    @Html.HiddenFor(model => model.Item1.CatalogId, new { Value = Model.Item2 })
+@*     @Html.HiddenFor(model => model.Id) *@
+@*     @Html.HiddenFor(model => Model.CatalogId) *@
+    <input type="hidden" name="Id" id="Id" value="@Model.Id" />
+    <input type="hidden" name="CatalogId" id="CatalogId" value="@Model.CatalogId" />
 <div class="form-horizontal">
     <h4>Resource</h4>
     <hr />
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-    @Html.HiddenFor(model => model.Item1.Id)
+    @Html.HiddenFor(model => Model.Id)
 
-    @Html.LabelFor(model => model.Item1.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+    @Html.LabelFor(model => Model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
     <div class="col-md-10">
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        @Html.EditorFor(model => model.Item1.Title, new { htmlAttributes = new { @class = "form-control" } })
+        @Html.EditorFor(model => Model.Title, new { htmlAttributes = new { @class = "form-control" } })
     </div>
 
     <div class="form-group">
-        @Html.LabelFor(model => model.Item1.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.LabelFor(model => Model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            @Html.EditorFor(model => model.Item1.Description, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.EditorFor(model => Model.Description, new { htmlAttributes = new { @class = "form-control" } })
         </div>
     </div>
 
     <div class="form-group">
-        @Html.LabelFor(model => model.Item1.Language, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.LabelFor(model => Model.Language, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            @Html.EditorFor(model => model.Item1.Language, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.EditorFor(model => Model.Language, new { htmlAttributes = new { @class = "form-control" } })
         </div>
     </div>
 
     <div class="form-group">
-        @Html.LabelFor(model => model.Item1.Format, htmlAttributes: new { @class = "control-label col-md-2" })
+        @Html.LabelFor(model => Model.Format, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            @Html.EditorFor(model => model.Item1.Format, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.EditorFor(model => model.Format, new { htmlAttributes = new { @class = "form-control" } })
         </div>
     </div>
 
     <div class="form-group">
-        @Html.LabelFor(model => model.Item1.SecurityLevel, new { @class = "control-label col-md-2" })
+        @Html.LabelFor(model => Model.SecurityLevel, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
-            @Html.EditorFor(model => model.Item1.SecurityLevel, new { htmlAttributes = new { @class = "form-control", min = 1, max = 10 } })
-            @Html.ValidationMessageFor(model => model.Item1.SecurityLevel, "", new { @class = "text-danger" })
+            @Html.EditorFor(model => Model.SecurityLevel, new { htmlAttributes = new { @class = "form-control", min = 1, max = 10 } })
+            @Html.ValidationMessageFor(model => Model.SecurityLevel, "", new { @class = "text-danger" })
         </div>
     </div>
 
@@ -62,39 +64,32 @@
         <label class="control-label col-md-2" for="Catalog_Name">Catalog</label>
         <div class="col-md-10">
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            @Html.EditorFor(model => model.Item1.Catalog.Name, new { htmlAttributes = new { @class = "form-control" } })
-        </div>
-    </div>
-    <div class="form-group">
-        @Html.LabelFor(model => model.Item1.Location, htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            @Html.EditorFor(model => model.Item1.Location, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.EditorFor(model => Model.Catalog.Name, new { htmlAttributes = new { @class = "form-control" } })
         </div>
     </div>
 
     @if (User.IsInRole("Admin"))
     {
         <div class="form-group">
-            @Html.LabelFor(model => model.Item1.Priority, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => Model.Priority, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                @Html.EditorFor(model => model.Item1.Priority, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => Model.Priority, new { htmlAttributes = new { @class = "form-control" } })
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.Item1.ResourceStatus, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => Model.ResourceStatus, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                 <span class="label label-default">
-                    @Html.Raw(Model.Item1.ResourceStatus)
+                    @Html.Raw(Model.ResourceStatus)
                 </span>
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.Item1.Tags, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => Model.Tags, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-3">
                 <input id="select-with-type" name="Tags" />
             </div>
@@ -104,18 +99,18 @@
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
             <input type="submit" value="Зберегти" class="d-inline btn btn-default" />
-            <a href=@Url.Action("ViewResourceDocument", "Resource", new {
-                             fileName = Model.Item1.Location
-                         }) class="d-inline btn btn-info" role="button">Відкрити документ</a>
+            <a href=@Url.Action("DownloadResourceDocument", "Resource", new {
+                        fileName = Model.Location
+                    }) class="d-inline btn btn-info" role="button">Завантажити документ</a>
             @if (User.IsInRole("Admin"))
             {
-                if (Model.Item1.ResourceStatus != ResourceStatus.Approved)
+                if (Model.ResourceStatus != ResourceStatus.Approved)
                 {
-                    <a href=@Url.Action("ApproveResource", "Admin", new {id = Model.Item1.Id}) class="d-inline btn btn-info" role="button">Підтвердити</a>
+                    <a href=@Url.Action("ApproveResource", "Admin", new {id = Model.Id}) class="d-inline btn btn-info" role="button">Підтвердити</a>
                 }
                 else
                 {
-                    <a href=@Url.Action("ApproveResource", "Admin", new {id = Model.Item1.Id}) class="d-inline btn alert-info disabled" role="button">Підтвердити</a>
+                    <a href=@Url.Action("ApproveResource", "Admin", new {id = Model.Id}) class="d-inline btn alert-info disabled" role="button">Підтвердити</a>
                 }
                 <a href="#" class="d-inline btn btn-danger">Видалити ресурс</a>
             }
@@ -134,7 +129,7 @@
     <script src="~/Scripts/selectize.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            const tags = @Html.Raw(Json.Serialize(Model.Item1.Tags.Select(tag => tag.Tag.TagValue)));
+            const tags = @Html.Raw(Json.Serialize(Model.Tags.Select(tag => tag.TagValue)));
             tags.forEach((tag, i) => tags[i] = { "value": tag, "text": tag });
             console.log(tags);
             const $select = $("#select-with-type").selectize({

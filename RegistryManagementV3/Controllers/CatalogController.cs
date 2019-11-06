@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,48 +11,40 @@ using RegistryManagementV3.Models;
 using RegistryManagementV3.Models.Domain;
 using RegistryManagementV3.Models.Repository;
 using RegistryManagementV3.Services;
+using RegistryManagementV3.Services.resources;
 
 namespace RegistryManagementV3.Controllers
 {
-//    [ClaimsAuthorize(AccountStatus = AccountStatus.Approved)]
+    [Authorize]
     public class CatalogController : Controller
     {
         private readonly ICatalogService _catalogService;
-        private readonly IResourceService _resourceService;
         private readonly IUserGroupService _userGroupService;
         private readonly SecurityDbContext _db;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ResourceManagementStrategy _resourceManagementStrategy;
 
-        public CatalogController(ICatalogService catalogService, IResourceService resourceService, IUserGroupService userGroupService, SecurityDbContext db, UserManager<ApplicationUser> userManager)
+        public CatalogController(ICatalogService catalogService, IUserGroupService userGroupService, SecurityDbContext db, UserManager<ApplicationUser> userManager, ResourceManagementStrategy resourceManagementStrategy)
         {
             _catalogService = catalogService;
-            _resourceService = resourceService;
             _userGroupService = userGroupService;
             _db = db;
             _userManager = userManager;
+            _resourceManagementStrategy = resourceManagementStrategy;
         }
 
         // GET: Catalog
         public async Task<ActionResult> Index(long? catalogId)
         {
-            List<Catalog> catalogs;
+            
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = _userManager.FindByIdAsync(userId).Result;
             var roles = await _userManager.GetRolesAsync(user);
-            var isAdmin = User.IsInRole("Admin");
-            if (isAdmin)
-            {
-                catalogs = _catalogService.GetAllCatalogs(catalogId);
-            }
-            else
-            {
-//                var userGroup = roles
-//                    .Where(c => c.Type == "userGroup")
-//                    .Select(c => c.Value)
-//                    .SingleOrDefault();
-                catalogs = _catalogService.GetChildCatalogsByUserGroup(catalogId, user.UserGroup.Name);
-            }
-            var resources = _resourceService.GetAllResourcesForCatalogAndUser(catalogId, user, isAdmin);
+            
+            var managementService = _resourceManagementStrategy.FindService(roles.FirstOrDefault());
+            var catalogs = managementService.GetCatalogsByParentCatalog(catalogId, user);
+            var resources = managementService.GetResourcesByParentCatalog(catalogId, user);
+            
             var tuple = new Tuple<IList<Catalog>, IList<Resource>, long?>(catalogs, resources, catalogId);
             return View(tuple);
         }
@@ -64,7 +56,7 @@ namespace RegistryManagementV3.Controllers
             { 
                 return new StatusCodeResult(400);
             }
-            Catalog catalog = _db.Catalogs.Find(id);
+            var catalog = _db.Catalogs.Find(id);
             if (catalog == null)
             {
                 return new StatusCodeResult(404);
@@ -87,25 +79,12 @@ namespace RegistryManagementV3.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(CatalogViewModel catalogViewModel)
         {
-//            if (ModelState.IsValid)
-//            {
-                var catalog = new Catalog {SuperCatalogId = catalogViewModel.CatalogId, Name = catalogViewModel.Name};
-                if (!string.IsNullOrEmpty(catalogViewModel.Groups))
-                    catalog.UserGroups = _userGroupService
-                        .GetUserGroupsWithNames(catalogViewModel.Groups.Split(',').ToList())
-                        .Select(group =>
-                        {
-                            var userGroupCatalogs = new UserGroupCatalogs();
-                            userGroupCatalogs.CatalogId = catalog.Id;
-                            userGroupCatalogs.Catalog = catalog;
-                            userGroupCatalogs.UserGroupId = group.Id;
-                            userGroupCatalogs.UserGroup = group;
-                            return userGroupCatalogs;
-                        }).ToList();
-
-                _catalogService.SaveCatalog(catalog);
-//            }
-
+            var catalog = new Catalog
+            {
+                SuperCatalogId = catalogViewModel.CatalogId, Name = catalogViewModel.Name,
+                SecurityLevel = catalogViewModel.SecurityLevel
+            };
+            _catalogService.SaveCatalog(catalog);
             return RedirectToAction("Index");
         }
 
@@ -161,23 +140,5 @@ namespace RegistryManagementV3.Controllers
             }
             return RedirectToAction("Index", "Catalog");
         }
-//
-//        // POST: Catalog/Delete/5
-//        [HttpPost, ActionName("Delete")]
-//        [ValidateAntiForgeryToken]
-//        public ActionResult DeleteConfirmed(long id)
-//        {
-//            _catalogService.RemoveCatalog(id);
-//            return RedirectToAction("Index");
-//        }
-//
-//        protected override void Dispose(bool disposing)
-//        {
-//            if (disposing)
-//            {
-//                _db.Dispose();
-//            }
-//            base.Dispose(disposing);
-//        }
     }
 }

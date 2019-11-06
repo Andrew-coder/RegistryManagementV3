@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using RegistryManagementV3.Controllers.Claims;
@@ -16,18 +17,21 @@ using RegistryManagementV3.Models;
 using RegistryManagementV3.Models.Domain;
 using RegistryManagementV3.Models.Repository;
 using RegistryManagementV3.Services;
+using RegistryManagementV3.Services.resources;
 
 namespace RegistryManagementV3
 {
     public class Startup
     {
-        private IConfiguration Configuration { get; set; }
+        private IConfiguration Configuration { get; }
 
-        public Startup(IWebHostEnvironment env)
+        public Startup(IHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json");
+                .AddJsonFile("appsettings.json")
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables();
             Configuration = builder.Build();
         }
 
@@ -43,10 +47,21 @@ namespace RegistryManagementV3
             services.AddScoped<ICatalogService>(provider => new CatalogService(unitOfWork));
             var tagService = new TagService(unitOfWork);
             services.AddScoped<ITagService>(provider => tagService);
-            services.AddScoped<IResourceService>(provider => new ResourceService(unitOfWork, tagService));
+            
+            var registryPath = Configuration.GetValue<string>("RegistryPath");
+            services.AddScoped<IResourceService>(provider => new ResourceService(unitOfWork, tagService, registryPath));
+            
             services.AddScoped<ISearchService>(provider => new SearchService(unitOfWork));
             services.AddScoped<IUserGroupService>(provider => new UserGroupService(unitOfWork));
             services.AddScoped<IUserService>(provider => new UserService(unitOfWork));
+
+            var userResourceManagementService = new UserResourceManagementService(unitOfWork);
+            var adminResourceManagementService = new AdminResourceManagementService(unitOfWork);
+            
+            services.AddScoped<IResourceManagementService>(provider => userResourceManagementService);
+            services.AddScoped<IResourceManagementService>(provider => adminResourceManagementService);
+            services.AddScoped<ResourceManagementStrategy>(provider =>
+                new ResourceManagementStrategy(adminResourceManagementService, userResourceManagementService));
             
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<SecurityDbContext>()
@@ -54,10 +69,7 @@ namespace RegistryManagementV3
 
             services
                 .AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, RegistryManagementClaimsPrincipalFactory>();
-
-//            services.AddIdentity<ApplicationUser, IdentityRole>()
-//                .AddEntityFrameworkStores<SecurityDbContext>()
-//                .AddDefaultTokenProviders();
+            
             services.Configure<IdentityOptions>(options =>
             {
                 options.Password.RequireDigit = false;
@@ -67,12 +79,13 @@ namespace RegistryManagementV3
                 options.Password.RequireUppercase = false;
             });
 
-            services.AddMvc();
+            services.AddMvc(options => options.Filters.Add(new AuthorizeFilter()));
             services.AddRouting();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options => //CookieAuthenticationOptions
+                .AddCookie(options =>
                 {
-                    options.LoginPath = new PathString("/Account/Login");
+                    options.LoginPath = "/Account/Login";
+                    options.LogoutPath = "/Account/LogOff";
                 });
             services.AddAuthorization(options =>
             {
@@ -91,6 +104,7 @@ namespace RegistryManagementV3
                 RequestPath = "/Static"
             });
 
+            app.UseCookiePolicy();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseRouting();
@@ -115,7 +129,7 @@ namespace RegistryManagementV3
         {
             //initializing custom roles 
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            string[] roleNames = {"Admin", "User"};
+            string[] roleNames = {"Admin", "User", "RESOURCE_AUTHOR"};
 
             foreach (var roleName in roleNames)
             {

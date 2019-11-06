@@ -21,7 +21,7 @@ namespace RegistryManagementV3.Services
 
         public List<Catalog> GetAllCatalogs(long? catalogId)
         {
-            var catalogs = new List<Catalog>();
+            List<Catalog> catalogs;
             if (catalogId.HasValue)
             {
                 catalogs = _uow.CatalogRepository.GetAllChildCatalogs(catalogId.Value);
@@ -34,22 +34,6 @@ namespace RegistryManagementV3.Services
                     .ToList();
             }
             return catalogs;
-        }
-
-        public List<Catalog> GetRootCatalogsForUserGroup(string groupName)
-        {
-            var userGroup = _uow.UserGroupRepository.FindUserGroupByName(groupName);
-            return _uow.CatalogRepository.FindRootCatalogs(userGroup);
-        }
-
-        public List<Catalog> GetChildCatalogsByUserGroup(long? catalogId, string groupName)
-        {
-            var userGroup = _uow.UserGroupRepository.FindUserGroupByName(groupName);
-            if (catalogId.HasValue)
-            {
-                return _uow.CatalogRepository.GetChildCatalogsByUserGroup(catalogId.Value, userGroup);
-            }
-            return GetRootCatalogsForUserGroup(groupName);
         }
 
         public bool ContainsSubCatalogs(long id)

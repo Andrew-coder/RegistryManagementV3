@@ -14,11 +14,13 @@ namespace RegistryManagementV3.Services
     {
         private readonly IUnitOfWork _uow;
         private readonly ITagService _tagService;
+        private readonly string _registryPath;
 
-        public ResourceService(IUnitOfWork uow, ITagService tagService)
+        public ResourceService(IUnitOfWork uow, ITagService tagService, string registryPath)
         {
             _uow = uow;
             _tagService = tagService;
+            _registryPath = registryPath;
         }
 
         public List<Resource> GetAllResources(long? catalogId)
@@ -41,45 +43,6 @@ namespace RegistryManagementV3.Services
             return resources;
         }
 
-        public List<Resource> GetRootResourcesForUserGroup()
-        {
-            return _uow.ResourceRepository.FindApprovedResourcesForRootCatalog();
-        }
-
-        public IList<Resource> GetAllResourcesForCatalogAndUser(long? catalogId, ApplicationUser user, bool isAdmin)
-        {
-            IList<Resource> resources = new List<Resource>();
-            if (catalogId.HasValue)
-            {
-                resources = _uow.ResourceRepository
-                    .GetAllResourcesForCatalog(catalogId.Value);
-            }
-            else
-            {
-                resources = _uow.ResourceRepository.FindAllResourcesForRootCatalog();
-            }
-
-            if (!isAdmin)
-            {
-                var securityLevel = user.UserGroup.SecurityLevel;
-                resources = resources
-                    .Where(resource => resource.SecurityLevel <= securityLevel)
-                    .Where(resource => resource.ResourceStatus == ResourceStatus.Approved)
-                    .ToList();
-            }
-            return resources;
-        }
-
-        public List<Resource> GetChildResourcesByUserGroup(long? catalogId, string groupName)
-        {
-            if (catalogId.HasValue)
-            {
-                return _uow.ResourceRepository.GetChildCatalogsByUserGroup(catalogId.Value);
-            }
-
-            return GetRootResourcesForUserGroup();
-        }
-
         public Resource GetById(long id)
         {
             return _uow.ResourceRepository.GetById(id);
@@ -88,10 +51,11 @@ namespace RegistryManagementV3.Services
         public void CreateResource(ResourceViewModel resourceViewModel, long catalogId)
         {
             var file = resourceViewModel.ResourceFile;
-            var path = Path.Combine(resourceViewModel.ResourceLocation,  
-                Path.GetFileName(file.FileName));  
-            //TO-DO implement saving
-            //            file.SaveAs(path);
+            var path = Path.Combine(_registryPath, Path.GetFileName(file.FileName));
+            using (var fileStream = new FileStream(path, FileMode.Create)) {
+                file.CopyTo(fileStream);
+            }
+            
             var catalog = _uow.CatalogRepository.GetById(catalogId);
             var priority = resourceViewModel.Priority ?? 0;
             var tagNames = new Collection<string>(resourceViewModel.Tags.Split(','));
@@ -105,10 +69,19 @@ namespace RegistryManagementV3.Services
                 SecurityLevel = resourceViewModel.SecurityLevel,
                 Location = path,
                 Priority = priority,
-                //Tags = tags,
+                TagResources = new List<TagResources>(),
                 ResourceStatus = ResourceStatus.PendingForCreationApprove,
                 Catalog = catalog
             };
+            var tagResources = tags.Select(tag =>
+            {
+                var tr = WireTagWithResource(tag, resource);
+                tag.TagResources.Add(tr);
+                return tr;
+            }).ToList();
+            
+            resource.TagResources.AddRange(tagResources);
+            tags.ForEach(tag => _uow.TagRepository.Add(tag));
             _uow.ResourceRepository.Add(resource);
             _uow.Save();
         }
@@ -132,6 +105,11 @@ namespace RegistryManagementV3.Services
             var tags = _tagService.GetTagsWithNames(tagNames);
             //tags.Except(resource.Tags).ToList().ForEach(tag => resource.Tags.Add(tag));
             _uow.Save();
+        }
+
+        private static TagResources WireTagWithResource(Tag tag, Resource resource)
+        {
+            return new TagResources {Tag = tag, Resource = resource};
         }
     }
 }
