@@ -77,11 +77,9 @@ namespace RegistryManagementV3.Models
         [Required]
         [Display(Name="Файл")]
         public IFormFile ResourceFile { get; set; }
-    
-        [Required]
-        [Display(Name="Розташування файла")]
-        public string ResourceLocation { get; set; }
 
+        [DefaultValue(5)]
+        [Range(1, 10)]
         [Display(Name = "Пріоритет")]
         public int? Priority { get; set; }
 

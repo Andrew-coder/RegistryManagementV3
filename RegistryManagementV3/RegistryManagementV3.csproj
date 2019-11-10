@@ -21,4 +21,10 @@
       <Folder Include="Static" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Static\Scripts\bootstrap.min.js">
+        <DependentUpon>_references.js</DependentUpon>
+      </None>
+    </ItemGroup>
+
 </Project>

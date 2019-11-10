@@ -3,8 +3,8 @@
 
 @{
     ViewBag.Title = "Edit";
-    <link href="~/Content/selectize.css" rel="stylesheet" />
-    <link href="~/Content/selectize.default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/Static/Styles/bootstrap-tagsinput.css">
+    <script src="~/Static/Scripts/bootstrap-tagsinput.js"></script>
 }    
 
 <h2>Edit</h2>
@@ -91,7 +91,7 @@
         <div class="form-group">
             @Html.LabelFor(model => Model.Tags, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-3">
-                <input id="select-with-type" name="Tags" />
+                <input id="tags" name="Tags" value="" data-role="tagsinput" class="form-control"/>
             </div>
         </div>
     }
@@ -125,24 +125,14 @@
 </div>
 
 @section Scripts {
-    <script src="~/Scripts/selectize.jquery.js"></script>
-    <script src="~/Scripts/selectize.js"></script>
+    
     <script type="text/javascript">
         $(document).ready(function() {
-            const tags = @Html.Raw(Json.Serialize(Model.Tags.Select(tag => tag.TagValue)));
-            tags.forEach((tag, i) => tags[i] = { "value": tag, "text": tag });
-            console.log(tags);
-            const $select = $("#select-with-type").selectize({
-                delimiter: ',',
-                persist: false,
-                placeholder: "Введіть теги",
-                create: true,
-                preload: true,
-                options: tags
+            let tags = @Html.Raw(Json.Serialize(Model.Tags.Select(tag => tag.TagValue)));
+            $.each(tags, function(index, value) {
+                $('#tags').tagsinput('add', value);
+                console.log(value);
             });
-            let selectize = $select[0].selectize;
-            let tagValues = tags.map(tag => tag.value);
-            selectize.setValue(tagValues);
         });
     </script>
 }
