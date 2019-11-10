@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-run_cmd="dotnet run --urls http://0.0.0.0:80"
+run_cmd="dotnet run environment=${ASPNETCORE_ENVIRONMENT} --urls http://*:80"
 
 until dotnet ef database update -c SecurityDbContext; do
 >&2 echo "SQL Server is starting up"
