@@ -10,7 +10,7 @@
 }
 
 <br />
-@Html.Partial("~/Views/Catalog/AdvanceSearch.cshtml", new SearchViewModel())
+@Html.Partial("~/Views/Catalog/AdvanceSearch.cshtml", new SearchFilterViewModel())
 <br />
 <a href="#" class="d-inline btn btn-info disabled" role="button">Назад</a>
 @if (User.IsInRole("Admin"))

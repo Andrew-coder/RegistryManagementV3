@@ -8,9 +8,16 @@
     <link href="~/Static/Styles/selectize.bootstrap3.css" rel="stylesheet" type="text/css" />
     <link href="~/Static/Styles/selectize.css" rel="stylesheet" type="text/css" />
     <link href="~/Static/Styles/selectize.default.css" rel="stylesheet" type="text/css" />
+    
+     <script type="text/javascript" src="~/Static/Scripts/bootstrap.min.js"></script>
+    <script type="text/javascript" src="~/Static/Scripts/jquery-1.11.1.js"></script>
+    
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    
     <link href="~/Static/Styles/Site.css" rel="stylesheet" type="text/css" />
     
- </head>
+</head>
  <body>
  
  <nav class="navbar navbar-default navbar-fixed-top"> 
@@ -61,20 +68,60 @@
  
                      </li> 
                  } 
-             </ul> 
-              
-             <div class="col-xs-4 col-sm-3 col-md-3 col-lg-3"> 
-                 <form class="navbar-form" role="search"> 
-                     <div class="input-group"> 
-                         <input type="text" class="form-control" placeholder="Пошук" name="q"> 
-                         <div class="input-group-btn"> 
-                             <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button> 
-                         </div> 
-                     </div> 
-                 </form> 
-             </div> 
-         </div> 
-     </div> 
+             </ul>
+             <div class="col-xs-4 col-sm-3 col-md-3 col-lg-3">
+                 <div class="container">
+                     <div class="row">
+                         <div class="col-md-12">
+                             <div class="input-group" id="adv-search">
+                                 <form action="/Search/SearchQuery" method="post">
+                                     <input placeholder="Пошук" type="text" class="form-control" id="Query" name="Query" value="" style="margin-top: 10px">
+                                     @* @Html.TextBoxFor(m => m., new {@class = "form-control", style = "margin-top:10px"}) *@
+                                 </form>
+                                 <div class="input-group-btn">
+                                     <div class="btn-group" role="group">
+                                         <div class="dropdown dropdown-lg">
+                                             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                                 <span class="caret"></span>
+                                             </button>
+                                             <div class="dropdown-menu dropdown-menu-right" role="menu">
+
+                                                 <form action="/Search/SearchFilters" method="post" class="form-horizontal" role="form">
+                                                     <div class="form-group">
+                                                         <label for="filter">Фільтрувати за</label>
+                                                         <select class="form-control">
+                                                             <option value="0" selected>Датою створення</option>
+                                                             <option value="1">форматом</option>
+                                                             <option value="2">Каталогом</option>
+                                                             <option value="3">Пріоритетом</option>
+                                                         </select>
+                                                     </div>
+                                                     <div class="form-group">
+                                                         <label for="contain">Автор</label>
+                                                         <input class="form-control" type="text"/>
+                                                     </div>
+                                                     <div class="form-group">
+                                                         <label for="contain">Містить ключові слова</label>
+                                                         <input class="form-control" type="text"/>
+                                                     </div>
+                                                     <button type="submit" class="btn btn-primary">
+                                                         <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                                                     </button>
+                                                 </form>
+                                             </div>
+                                         </div>
+                                         <button type="button" class="btn btn-primary">
+                                             <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                                         </button>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         </div>
+     </div>
  </nav>
  <div class="container body-content"> 
      @RenderBody() 
@@ -82,10 +129,7 @@
      <footer class="navbar-fixed-bottom"> 
          <p>&copy; @DateTime.Now.Year - Реєстр кафедри</p> 
      </footer> 
- </div> 
- 
- <script type="text/javascript" src="~/Static/Scripts/bootstrap.js"></script>
- <script type="text/javascript" src="~/Static/Scripts/jquery-1.10.2.js"></script>
+ </div>
  @RenderSection("Scripts", required:false)
  </body> 
  </html> 

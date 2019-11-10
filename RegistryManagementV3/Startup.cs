@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -103,6 +102,13 @@ namespace RegistryManagementV3
                     Path.Combine(Directory.GetCurrentDirectory(), "Static")),
                 RequestPath = "/Static"
             });
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            } else
+            {
+                app.UseExceptionHandler("/Error");   
+            }
 
             app.UseCookiePolicy();
             app.UseAuthentication();
@@ -118,18 +124,12 @@ namespace RegistryManagementV3
             {
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}");
             });
-
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
         }
 
         private static async Task CreateRoles(IServiceProvider serviceProvider)
         {
-            //initializing custom roles 
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            string[] roleNames = {"Admin", "User", "RESOURCE_AUTHOR"};
+            string[] roleNames = {"Admin", "User", "ResourceAuthor"};
 
             foreach (var roleName in roleNames)
             {

@@ -15,7 +15,6 @@ using RegistryManagementV3.Services.resources;
 
 namespace RegistryManagementV3.Controllers
 {
-    [Authorize]
     public class CatalogController : Controller
     {
         private readonly ICatalogService _catalogService;

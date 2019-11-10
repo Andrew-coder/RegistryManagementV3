@@ -144,6 +144,10 @@ namespace RegistryManagementV3.Models
 
     public class SearchViewModel
     {
+        public string Query { get; set; }
+    }
+    public class SearchFilterViewModel
+    {
         public string Tags { get; set; }
     }
 

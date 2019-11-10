@@ -29,6 +29,8 @@ namespace RegistryManagementV3.Models.Domain
         public int? Priority { get; set; }
         public ResourceStatus ResourceStatus { get; set; }
 
+        //TODO: fix mapping
+        [NotMapped]
         public bool IsEditable { get; set; } = false;
 
         [Column(TypeName = "NVARCHAR(1000)")]
