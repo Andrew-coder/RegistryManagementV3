@@ -46,5 +46,39 @@ namespace RegistryManagementV3.Services.resources
 
             return resources;
         }
+        
+        public IList<Resource> SearchResourcesByQuery(string query, ApplicationUser user)
+        {
+            var queryLowerInvariant = query.ToLowerInvariant();
+            return _uow.ResourceRepository.FindAllResources()
+                .Where(resource => MatchResourceWithQuery(resource, queryLowerInvariant))
+                .OrderByDescending(resource => resource.Priority)
+                .ToList();
+        }
+        
+        private static bool MatchResourceWithQuery(Resource resource, string query)
+        {
+            if (resource.Description.ToLowerInvariant().Contains(query))
+            {
+                return true;
+            }
+            if (resource.Title.ToLowerInvariant().Contains(query))
+            {
+                return true;
+            }
+            if (resource.FileName.ToLowerInvariant().Contains(query))
+            {
+                return true;
+            }
+
+            if (resource.Tags != null)
+            {
+                if (resource.Tags.Any(tag => tag.TagValue.ToLowerInvariant().Contains(query)))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

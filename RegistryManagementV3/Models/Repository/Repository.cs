@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Linq.Expressions;
+using LinqKit;
 using Microsoft.EntityFrameworkCore;
 
 namespace RegistryManagementV3.Models.Repository
@@ -16,6 +19,11 @@ namespace RegistryManagementV3.Models.Repository
         public T GetById(long id)
         {
             return Context.Set<T>().Find(id);
+        }
+
+        public virtual IQueryable<T> FindByPredicate(Expression<Func<T, bool>> predicate)
+        {
+            return Context.Set<T>().AsExpandable().Where(predicate);
         }
 
         public void Add(T item)

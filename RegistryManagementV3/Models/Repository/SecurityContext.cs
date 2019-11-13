@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using RegistryManagementV3.Models.Domain;
 
 namespace RegistryManagementV3.Models.Repository
@@ -19,6 +18,9 @@ namespace RegistryManagementV3.Models.Repository
                 .HasKey(t => new { t.UserGroupId, t.CatalogId });
             builder.Entity<TagResources>()
                 .HasKey(t => new { t.TagId, t.ResourceId });
+            builder.Entity<Tag>()
+                .Property(tag => tag.Id)
+                .ValueGeneratedOnAdd();
         }
 
         public DbSet<Resource> Resources { get; set;  }

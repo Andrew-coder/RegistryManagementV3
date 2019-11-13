@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using LinqKit;
+using Microsoft.EntityFrameworkCore;
 using RegistryManagementV3.Models.Domain;
 
 namespace RegistryManagementV3.Models.Repository
@@ -17,12 +21,14 @@ namespace RegistryManagementV3.Models.Repository
                 .ToList();
         }
 
-        public List<Resource> FindApprovedResourcesForRootCatalog()
+        public override IQueryable<Resource> FindByPredicate(Expression<Func<Resource, bool>> predicate)
         {
-            return Context.Resources
-                .Where(resource => resource.Catalog == null)
-                .Where(resource => resource.ResourceStatus == ResourceStatus.Approved)
-                .ToList();
+            return Context.Set<Resource>()
+                .AsExpandable()
+                .Include(s => s.Catalog)
+                .Include(s => s.TagResources)
+                .ThenInclude(tr => tr.Tag)
+                .Where(predicate);
         }
 
         public List<Resource> GetAllResourcesForCatalog(long catalogId)
@@ -32,19 +38,11 @@ namespace RegistryManagementV3.Models.Repository
                 .ToList();
         }
 
-        public List<Resource> GetChildCatalogsByUserGroup(long catalogId)
-        {
-            return Context.Resources
-                .Where(resource => resource.CatalogId == catalogId)
-                .Where(resource => resource.ResourceStatus == ResourceStatus.Approved)
-                .ToList();
-        }
-
         public IList<Resource> GetAllResourcesByTagsOrderedByPriority(IList<string> tags)
         {
-//            return Context.Resources
-//                .Where(resource => resource.Tags.Select(res => res.TagValue).Intersect(tags).Any())
-//                .OrderByDescending(resource => resource.Priority).ToList();
+            return Context.Resources
+                .Where(resource => resource.Tags.Select(res => res.TagValue).Intersect(tags).Any())
+                .OrderByDescending(resource => resource.Priority).ToList();
             return null;
         }
 
@@ -56,6 +54,16 @@ namespace RegistryManagementV3.Models.Repository
 //                .Where(resource => resource.SecurityLevel <= securityLevel)
 //                .OrderByDescending(resource => resource.Priority).ToList();
             return null;
+        }
+
+        public IList<Resource> FindAllResources()
+        {
+
+            return Context.Resources
+                .Include(s => s.Catalog)
+                .Include(s => s.TagResources)
+                .ThenInclude(tr => tr.Tag)
+                .ToList();
         }
     }
 }

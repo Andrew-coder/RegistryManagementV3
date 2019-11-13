@@ -6,7 +6,9 @@
     <title>@ViewBag.Title - My ASP.NET Application</title>
     <link href="~/Static/Styles/bootstrap.css" rel="stylesheet" type="text/css" id="bootstrap-css" />
     <link href="~/Static/Styles/Site.css" rel="stylesheet" type="text/css" />
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.8.1/css/bootstrap-select.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.8.1/js/bootstrap-select.js"></script>
     <script type="text/javascript" src="~/Static/Scripts/jquery-1.11.1.js"></script>
     <script type="text/javascript" src="~/Static/Scripts/bootstrap.min.js"></script>
 </head>
@@ -41,7 +43,6 @@
                  @if (User.Identity.IsAuthenticated && User.IsInRole("Admin")) 
                  { 
                      <li>@Html.ActionLink("Управління користувачами", "Index", "User")</li> 
-                     <li>@Html.ActionLink("Групи користувачів", "Index", "UserGroups")</li> 
                  } 
  
  
@@ -66,10 +67,12 @@
                      <div class="row">
                          <div class="col-md-12">
                              <div class="input-group" id="adv-search">
-                                 <form action="/Search/SearchQuery" method="post">
-                                     <input placeholder="Пошук" type="text" class="form-control" id="Query" name="Query" value="" style="margin-top: 10px">
-                                     @* @Html.TextBoxFor(m => m., new {@class = "form-control", style = "margin-top:10px"}) *@
-                                 </form>
+                                 @* <form action="/Search/SearchQuery" method="post"> *@
+                                 @using (Html.BeginForm("SearchQuery", "Search", FormMethod.Post))
+                                 {
+                                     <input placeholder="Пошук" type="text" class="form-control" id="query" name="Query.Query" value="" style="margin-top: 10px">
+                                 }
+                                 @* </form> *@
                                  <div class="input-group-btn">
                                      <div class="btn-group" role="group">
                                          <div class="dropdown dropdown-lg">

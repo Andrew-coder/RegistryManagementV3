@@ -64,10 +64,6 @@ namespace RegistryManagementV3.Models
         [Required] 
         [Display(Name = "Мова")] 
         public string Language { get; set; }
-        
-        [Required] 
-        [Display(Name = "Формат")] 
-        public string Format { get; set; }
 
         [DefaultValue(5)]
         [Range(1, 10)]
@@ -142,6 +138,7 @@ namespace RegistryManagementV3.Models
 
     public class SearchViewModel
     {
+        [Required]
         public string Query { get; set; }
     }
     public class SearchFilterViewModel

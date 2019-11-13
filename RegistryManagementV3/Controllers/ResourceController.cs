@@ -7,6 +7,7 @@ using RegistryManagementV3.Models;
 using RegistryManagementV3.Models.Domain;
 using RegistryManagementV3.Models.Repository;
 using RegistryManagementV3.Services;
+using RegistryManagementV3.Services.Extensions;
 
 namespace RegistryManagementV3.Controllers
 {
@@ -83,6 +84,7 @@ namespace RegistryManagementV3.Controllers
             }
 
             var resource = _db.Resources
+                .Where(tag => tag.Id.Equals(id.Value))
                 .Include(s => s.Catalog)
                 .Include(s => s.TagResources)
                 .ThenInclude(tr => tr.Tag)
@@ -125,7 +127,7 @@ namespace RegistryManagementV3.Controllers
             {
                 return new StatusCodeResult(400);
             }
-            Resource resource = _db.Resources.Find(id);
+            var resource = _db.Resources.Find(id);
             if (resource == null)
             {
                 return new StatusCodeResult(404);
@@ -147,7 +149,7 @@ namespace RegistryManagementV3.Controllers
         public IActionResult DownloadResourceDocument(string fileName)
         {
             var file = Path.Combine(fileName);
-            return File(System.IO.File.ReadAllBytes(file), "application/octet-stream", fileName);
+            return File(System.IO.File.ReadAllBytes(file), "application/octet-stream", fileName.RemoveTimeStamp());
         }
     }
 }

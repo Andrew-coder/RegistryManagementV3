@@ -10,6 +10,7 @@ namespace RegistryManagementV3.Models.Domain
     {
         public Tag()
         {
+            TagResources = new List<TagResources>();
         }
 
         public Tag(string tagValue)
@@ -18,6 +19,7 @@ namespace RegistryManagementV3.Models.Domain
         }
 
         [Key]
+        [DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
         [StringLength(30)]

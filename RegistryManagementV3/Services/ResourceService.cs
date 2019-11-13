@@ -7,6 +7,7 @@ using RegistryManagementV3.Models.Domain;
 using RegistryManagementV3.Models;
 using RegistryManagementV3.Models.Domain;
 using RegistryManagementV3.Services;
+using RegistryManagementV3.Services.Extensions;
 
 namespace RegistryManagementV3.Services
 {
@@ -51,7 +52,8 @@ namespace RegistryManagementV3.Services
         public void CreateResource(ResourceViewModel resourceViewModel, long catalogId)
         {
             var file = resourceViewModel.ResourceFile;
-            var path = Path.Combine(_registryPath, Path.GetFileName(file.FileName));
+            var fileName = file.FileName;
+            var path = Path.Combine(_registryPath, Path.GetFileName(fileName.AppendTimeStamp()));
             using (var fileStream = new FileStream(path, FileMode.Create)) {
                 file.CopyTo(fileStream);
             }
@@ -59,16 +61,19 @@ namespace RegistryManagementV3.Services
             var catalog = _uow.CatalogRepository.GetById(catalogId);
             var priority = resourceViewModel.Priority ?? 0;
             var tagNames = new Collection<string>(resourceViewModel.Tags.Split(','));
+            var fileExtension = Path.GetExtension(fileName);
             var tags = _tagService.GetTagsWithNames(tagNames);
             var resource = new Resource
             {
                 Title = resourceViewModel.Title,
                 Description = resourceViewModel.Description,
                 Language = resourceViewModel.Language,
-                Format = resourceViewModel.Format,
+                Format = fileExtension,
                 SecurityLevel = resourceViewModel.SecurityLevel,
+                FileName = fileName,
                 Location = path,
                 Priority = priority,
+                IsEditable = false,
                 TagResources = new List<TagResources>(),
                 ResourceStatus = ResourceStatus.PendingForCreationApprove,
                 Catalog = catalog
@@ -81,7 +86,9 @@ namespace RegistryManagementV3.Services
             }).ToList();
             
             resource.TagResources.AddRange(tagResources);
-            tags.ForEach(tag => _uow.TagRepository.Add(tag));
+            tags.Where(tag => tag.Id == null)
+                .ToList()
+                .ForEach(tag => _uow.TagRepository.Add(tag));
             _uow.ResourceRepository.Add(resource);
             _uow.Save();
         }

@@ -7,5 +7,6 @@ namespace RegistryManagementV3.Services.resources
     {
         List<Catalog> GetCatalogsByParentCatalog(long? parentCatalogId, ApplicationUser user);
         List<Resource> GetResourcesByParentCatalog(long? parentCatalogId, ApplicationUser user);
+        IList<Resource> SearchResourcesByQuery(string query, ApplicationUser user);
     }
 }
