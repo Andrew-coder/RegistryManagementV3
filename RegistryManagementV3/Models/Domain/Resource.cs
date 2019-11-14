@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -23,6 +24,8 @@ namespace RegistryManagementV3.Models.Domain
         
         [Column(TypeName = "NVARCHAR(50)")]
         public string Format { get; set; }
+        public DateTime CreationTimestamp { get; set; }
+        public DateTime ApprovalTimestamp { get; set; }
         [DefaultValue(5)]
         [Range(1, 10)]
         public int SecurityLevel { get; set; } = 5;

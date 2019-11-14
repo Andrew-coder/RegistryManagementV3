@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using RegistryManagementV3.Models;
 using RegistryManagementV3.Models.Domain;
 using RegistryManagementV3.Services;
+using RegistryManagementV3.Services.Extensions;
 using RegistryManagementV3.Services.resources;
 
 namespace RegistryManagementV3.Controllers
@@ -41,19 +42,28 @@ namespace RegistryManagementV3.Controllers
         
         // GET: /Search with filters
         [HttpPost]
-        public ActionResult SearchFilters(SearchFilterViewModel searchFilterViewModel)
+        public async Task<ActionResult> SearchFilters(SearchFilterViewModel searchFilterViewModel)
         {
-            if (string.IsNullOrEmpty(searchFilterViewModel.Tags))
+            var tagNames = new Collection<string>();
+            if (!string.IsNullOrEmpty(searchFilterViewModel.Tags))
             {
-                return RedirectToAction("Index", "Catalog");
+                tagNames = new Collection<string>(searchFilterViewModel.Tags.Split(','));
             }
-            var tagNames = new Collection<string>(searchFilterViewModel.Tags.Split(','));
-            var isAdmin = User.IsInRole("Admin");
-            
+
+            var creationDateRange = searchFilterViewModel.CreationDateRange.ParseToDateRange();
+            var approvalDateRange = searchFilterViewModel.ApprovalDateRange.ParseToDateRange();
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = _userManager.FindByIdAsync(userId).Result;
+            var roles = await _userManager.GetRolesAsync(user);
+            var managementService = _resourceManagementStrategy.FindService(roles.FirstOrDefault());
+
+            var resources = managementService.SearchResourcesByFilterObject(new ResourceFilter()
+            {
+                Query = searchFilterViewModel.Query, Tags = tagNames, CreationDateRange = creationDateRange,
+                ApprovalDateRange = approvalDateRange, OrderBy = searchFilterViewModel.OrderBy
+            });
             
-            var resources = _searchService.SearchResourcesByTags(tagNames, user, isAdmin);
             return View("SearchResults", resources);
         }
     }

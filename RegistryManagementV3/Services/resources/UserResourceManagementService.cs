@@ -55,6 +55,66 @@ namespace RegistryManagementV3.Services.resources
                 .OrderByDescending(resource => resource.Priority)
                 .ToList();
         }
+        public IList<Resource> SearchResourcesByFilterObject(ResourceFilter resourceFilter)
+        {
+            var query = _uow.ResourceRepository.FindAllResources()
+                .Where(resource => MatchResourceWithFilterObject(resource, resourceFilter));
+            
+//            if (!string.IsNullOrEmpty(resourceFilter.AuthorName))
+//            {
+//                query = query.Where()
+//            }
+
+            if (resourceFilter.CreationDateRange != null)
+            {
+                query = query.Where(resource =>
+                    resource.CreationTimestamp < resourceFilter.CreationDateRange.Item2 &&
+                    resource.CreationTimestamp > resourceFilter.CreationDateRange.Item1);
+            }
+            
+            if (resourceFilter.ApprovalDateRange != null)
+            {
+                query = query.Where(resource =>
+                    resource.ApprovalTimestamp < resourceFilter.ApprovalDateRange.Item2 &&
+                    resource.ApprovalTimestamp > resourceFilter.ApprovalDateRange.Item1);
+            }
+
+            return query.ToList();
+        }
+
+        private static bool MatchResourceWithFilterObject(Resource resource, ResourceFilter resourceFilter)
+        {
+            var query = resourceFilter.Query.ToLowerInvariant();
+            if (!string.IsNullOrEmpty(query))
+            {
+                if (resource.Description.ToLowerInvariant().Contains(query))
+                {
+                    return true;
+                }
+
+                if (resource.Title.ToLowerInvariant().Contains(query))
+                {
+                    return true;
+                }
+
+                if (resource.FileName.ToLowerInvariant().Contains(query))
+                {
+                    return true;
+                }
+            }
+
+            if (resource.Tags != null && resourceFilter.Tags != null)
+            {
+                var hasSameElements = resource.Tags.Select(tag => tag.TagValue.ToLowerInvariant()).ToList()
+                    .Intersect(resourceFilter.Tags.Select(tag => tag.ToLowerInvariant()).ToList()).Any();
+                if (hasSameElements)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
         
         private static bool MatchResourceWithQuery(Resource resource, string query)
         {
@@ -80,41 +140,10 @@ namespace RegistryManagementV3.Services.resources
             }
             return false;
         }
-        
-//        public IList<Resource> SearchResourcesByQuery(string query, ApplicationUser user)
-//        {
-//            var queryLowerInvariant = query.ToLowerInvariant();
-//            var predicate = PredicateBuilder.New<Resource>(true);
-//            predicate = predicate.And(MatchResourceWithQuery(queryLowerInvariant));
-//            predicate = predicate.And(HasStatus(ResourceStatus.Approved));
-//            predicate = predicate.And(SecurityLevelIsLesserThan(user.SecurityLevel));
-//                
-//            return _uow.ResourceRepository.FindByPredicate(predicate)
-//                .OrderByDescending(resource => resource.Priority)
-//                .ToList();
-//        }
-        
+
         private List<Catalog> GetRootCatalogsForUserFilteredBySecurityLevel(int securityLevel)
         {
             return _uow.CatalogRepository.FindRootCatalogsFilteredBySecurityLevel(securityLevel);
         }
-
-//        private static Expression<Func<Resource, bool>> MatchResourceWithQuery(string query)
-//        {
-//            var predicate = PredicateBuilder.New<Resource>(false);
-//            predicate = predicate.Or(resource => resource.Description.ToLowerInvariant().Contains(query));
-//            predicate = predicate.Or(resource => resource.Title.ToLowerInvariant().Contains(query));
-//            predicate.Or(resource => resource.FileName.ToLowerInvariant().Contains(query));
-//            return predicate.Or(resource => resource.Tags.Any(tag => tag.TagValue.ToLowerInvariant().Contains(query)));
-//        }
-//        
-//        private static Expression<Func<Resource, bool>> SecurityLevelIsLesserThan(int securityLevel)
-//        {
-//            return resource => resource.SecurityLevel <= securityLevel;
-//        }
-//        private static Expression<Func<Resource, bool>> HasStatus(ResourceStatus status)
-//        {
-//            return resource => resource.ResourceStatus == status;
-//        }
     }
 }

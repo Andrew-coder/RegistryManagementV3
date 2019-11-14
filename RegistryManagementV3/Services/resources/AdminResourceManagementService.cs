@@ -80,5 +80,64 @@ namespace RegistryManagementV3.Services.resources
             }
             return false;
         }
+        
+        public IList<Resource> SearchResourcesByFilterObject(ResourceFilter resourceFilter)
+        {
+            var query = _uow.ResourceRepository.FindAllResources().AsQueryable();
+            if (!string.IsNullOrEmpty(resourceFilter.Query))
+            {
+                query = query.Where(resource => MatchResourceWithFilterObject(resource, resourceFilter));
+            }
+
+            if (resourceFilter.CreationDateRange != null)
+            {
+                query = query.Where(resource =>
+                    resource.CreationTimestamp < resourceFilter.CreationDateRange.Item2 &&
+                    resource.CreationTimestamp > resourceFilter.CreationDateRange.Item1);
+            }
+            
+            if (resourceFilter.ApprovalDateRange != null)
+            {
+                query = query.Where(resource =>
+                    resource.ApprovalTimestamp < resourceFilter.ApprovalDateRange.Item2 &&
+                    resource.ApprovalTimestamp > resourceFilter.ApprovalDateRange.Item1);
+            }
+
+            return query.ToList();
+        }
+
+        private static bool MatchResourceWithFilterObject(Resource resource, ResourceFilter resourceFilter)
+        {
+            var query = resourceFilter.Query.ToLowerInvariant();
+            if (!string.IsNullOrEmpty(query))
+            {
+                if (resource.Description.ToLowerInvariant().Contains(query))
+                {
+                    return true;
+                }
+
+                if (resource.Title.ToLowerInvariant().Contains(query))
+                {
+                    return true;
+                }
+
+                if (resource.FileName.ToLowerInvariant().Contains(query))
+                {
+                    return true;
+                }
+            }
+
+            if (resource.Tags != null && resourceFilter.Tags != null)
+            {
+                var hasSameElements = resource.Tags.Select(tag => tag.TagValue.ToLowerInvariant()).ToList()
+                    .Intersect(resourceFilter.Tags.Select(tag => tag.ToLowerInvariant()).ToList()).Any();
+                if (hasSameElements)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

@@ -56,7 +56,7 @@ namespace RegistryManagementV3.Models.Repository
             return null;
         }
 
-        public IList<Resource> FindAllResources()
+        public IEnumerable<Resource> FindAllResources()
         {
 
             return Context.Resources

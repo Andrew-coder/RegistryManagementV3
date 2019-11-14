@@ -79,6 +79,7 @@ namespace RegistryManagementV3.Controllers
                 return new StatusCodeResult(404);
             }
 
+            var roles = _dbContext.Roles.ToList();
             var userViewModel = new ApplicationUserViewModel()
             {
                 Id = applicationUser.Id,
@@ -89,7 +90,7 @@ namespace RegistryManagementV3.Controllers
                 UserName = applicationUser.UserName,
                 UserGroup = applicationUser.UserGroup?.Name
             };
-            var userInfo = new Tuple<ApplicationUserViewModel, List<UserGroup>>(userViewModel, userGroups);
+            var userInfo = new Tuple<ApplicationUserViewModel, List<IdentityRole>>(userViewModel, roles);
             return View(userInfo);
         }
 

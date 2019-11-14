@@ -143,7 +143,12 @@ namespace RegistryManagementV3.Models
     }
     public class SearchFilterViewModel
     {
+        public string Query { get; set; }
+        public string CreationDateRange { get; set; }
+        public string ApprovalDateRange { get; set; }
+        public string Author { get; set; }
         public string Tags { get; set; }
+        public string OrderBy { get; set; }
     }
 
     public class LoginViewModel

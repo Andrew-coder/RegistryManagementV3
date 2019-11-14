@@ -94,6 +94,13 @@
                 <input id="tags" name="Tags" value="" data-role="tagsinput" class="form-control"/>
             </div>
         </div>
+        
+        <div class="form-group">
+            @Html.LabelFor(model => Model.IsEditable, htmlAttributes: new { @class = "form-check-label control-label col-md-2" })
+            <div class="col-md-3">
+                <input id="IsEditable" name="IsEditable" type="checkbox" value="" data-role="tagsinput" class="form-control"/>
+            </div>
+        </div>
     }
 
     <div class="form-group">

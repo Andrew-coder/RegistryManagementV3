@@ -3,14 +3,18 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title - Реєстр</title>
     <link href="~/Static/Styles/bootstrap.css" rel="stylesheet" type="text/css" id="bootstrap-css" />
     <link href="~/Static/Styles/Site.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.8.1/css/bootstrap-select.css">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.8.1/js/bootstrap-select.js"></script>
+    <link href="~/Static/Styles/bootstrap-select.css" rel="stylesheet" type="text/css" />
+    <link href="~/Static/Styles/daterangepicker.css" rel="stylesheet" type="text/css" />
+
     <script type="text/javascript" src="~/Static/Scripts/jquery-1.11.1.js"></script>
     <script type="text/javascript" src="~/Static/Scripts/bootstrap.min.js"></script>
+    <script type="text/javascript" src="~/Static/Scripts/moment.min.js"></script>
+    <script type="text/javascript" src="~/Static/Scripts/daterangepicker.min.js"></script>
+    <script type="text/javascript" src="~/Static/Scripts/bootstrap-select.js"></script>
+    <script type="text/javascript" src="~/Static/Scripts/site.js"></script>
 </head>
  <body>
  
@@ -23,7 +27,7 @@
                  <span class="icon-bar"></span> 
                  <span class="icon-bar"></span> 
              </button> 
-             @Html.ActionLink("Реєстр кафедри", "Index", "Home", 
+             @Html.ActionLink("Реєстр міністерства", "Index", "Home", 
                  new { @style= "padding:15px 15px;"}, new {@class = "navbar-brand" }) 
          </div>
       
@@ -84,7 +88,7 @@
                                                  <form action="/Search/SearchFilters" method="post" class="form-horizontal" role="form">
                                                      <div class="form-group">
                                                          <label for="filter">Фільтрувати за</label>
-                                                         <select class="form-control">
+                                                         <select class="form-control" name="OrderBy">
                                                              <option value="0" selected>Датою створення</option>
                                                              <option value="1">форматом</option>
                                                              <option value="2">Каталогом</option>
@@ -92,12 +96,24 @@
                                                          </select>
                                                      </div>
                                                      <div class="form-group">
+                                                         <label for="contain">Назва/Опис/Імя файла</label>
+                                                         <input class="form-control" name="Query" type="text"/>
+                                                     </div>
+                                                     <div class="form-group">
+                                                         <label for="contain">Дата створення</label>
+                                                         <input type="text" class="form-control daterange" name="CreationDateRange" value=""/>
+                                                     </div>
+                                                     <div class="form-group">
+                                                         <label for="contain">Дата затвердження</label>
+                                                         <input type="text" class="form-control daterange" name="ApprovalDateRange" value=""/>
+                                                     </div>
+                                                     <div class="form-group">
                                                          <label for="contain">Автор</label>
-                                                         <input class="form-control" type="text"/>
+                                                         <input class="form-control" name="Author" type="text"/>
                                                      </div>
                                                      <div class="form-group">
                                                          <label for="contain">Містить ключові слова</label>
-                                                         <input class="form-control" type="text"/>
+                                                         <input class="form-control" name="Tags" type="text"/>
                                                      </div>
                                                      <button type="submit" class="btn btn-primary">
                                                          <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
