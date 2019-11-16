@@ -24,8 +24,8 @@ namespace RegistryManagementV3.Services.Extensions
 
         public static Tuple<DateTime, DateTime> ParseToDateRange(this string dateRange)
         {
-            var dates = dateRange.Split(new char[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
-            if(dates.Length == 2) {
+            var dates = dateRange?.Split(new char[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+            if(dates != null && dates.Length == 2) {
                 const string format = "MM/dd/yyyy";
                 var provider = CultureInfo.InvariantCulture;
                 var startDate = DateTime.ParseExact(dates[0].Trim(), format, provider);

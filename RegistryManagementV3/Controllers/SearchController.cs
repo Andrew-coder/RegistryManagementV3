@@ -63,6 +63,13 @@ namespace RegistryManagementV3.Controllers
                 Query = searchFilterViewModel.Query, Tags = tagNames, CreationDateRange = creationDateRange,
                 ApprovalDateRange = approvalDateRange, OrderBy = searchFilterViewModel.OrderBy
             });
+
+            ViewData["query"] = searchFilterViewModel.Query;
+            ViewData["creationDateRange"] = searchFilterViewModel.CreationDateRange;
+            ViewData["approvalDateRange"] = searchFilterViewModel.ApprovalDateRange;
+            ViewData["author"] = searchFilterViewModel.Author;
+            ViewData["tags"] = searchFilterViewModel.Tags;
+            ViewData["orderBy"] = searchFilterViewModel.OrderBy;
             
             return View("SearchResults", resources);
         }

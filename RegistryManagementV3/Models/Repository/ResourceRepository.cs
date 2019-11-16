@@ -38,24 +38,6 @@ namespace RegistryManagementV3.Models.Repository
                 .ToList();
         }
 
-        public IList<Resource> GetAllResourcesByTagsOrderedByPriority(IList<string> tags)
-        {
-            return Context.Resources
-                .Where(resource => resource.Tags.Select(res => res.TagValue).Intersect(tags).Any())
-                .OrderByDescending(resource => resource.Priority).ToList();
-            return null;
-        }
-
-        public IList<Resource> GetApprovedResourcesByTagsAndSecurityLevelOrderedByPriority(IList<string> tags, int securityLevel)
-        {
-//            return Context.Resources
-//                .Where(resource => resource.Tags.Select(res => res.TagValue).Intersect(tags).Any())
-//                .Where(resource => resource.ResourceStatus == ResourceStatus.Approved)
-//                .Where(resource => resource.SecurityLevel <= securityLevel)
-//                .OrderByDescending(resource => resource.Priority).ToList();
-            return null;
-        }
-
         public IEnumerable<Resource> FindAllResources()
         {
 

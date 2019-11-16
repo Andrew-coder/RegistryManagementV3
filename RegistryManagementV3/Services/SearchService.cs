@@ -13,16 +13,6 @@ namespace RegistryManagementV3.Services
             _uow = uow;
         }
 
-        public IList<Resource> SearchResourcesByTags(IList<string> tags, ApplicationUser user, bool isAdmin)
-        {
-            if (isAdmin)
-            {
-                return _uow.ResourceRepository.GetAllResourcesByTagsOrderedByPriority(tags);
-            }
-
-            return _uow
-                .ResourceRepository
-                .GetApprovedResourcesByTagsAndSecurityLevelOrderedByPriority(tags, user.UserGroup.SecurityLevel);
-        }
+        
     }
 }

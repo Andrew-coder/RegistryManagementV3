@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using LinqKit;
 using RegistryManagementV3.Models;
 using RegistryManagementV3.Models.Domain;
 
@@ -14,7 +17,7 @@ namespace RegistryManagementV3.Services.resources
             _uow = uow;
         }
         
-        public List<Catalog> GetCatalogsByParentCatalog(long? parentCatalogId, ApplicationUser user)
+        public override List<Catalog> GetCatalogsByParentCatalog(long? parentCatalogId, ApplicationUser user)
         {
             if (parentCatalogId.HasValue)
             {
@@ -23,7 +26,7 @@ namespace RegistryManagementV3.Services.resources
             return GetRootCatalogsForUserFilteredBySecurityLevel(user.SecurityLevel);
         }
 
-        public List<Resource> GetResourcesByParentCatalog(long? parentCatalogId, ApplicationUser user)
+        public override List<Resource> GetResourcesByParentCatalog(long? parentCatalogId, ApplicationUser user)
         {
             List<Resource> resources;
             if (parentCatalogId.HasValue)
@@ -45,105 +48,42 @@ namespace RegistryManagementV3.Services.resources
             return resources;
         }
         
-        public IList<Resource> SearchResourcesByQuery(string query, ApplicationUser user)
+        public override IList<Resource> SearchResourcesByQuery(string query, ApplicationUser user)
         {
-            var queryLowerInvariant = query.ToLowerInvariant();
-            return _uow.ResourceRepository.FindAllResources()
-                .Where(resource => MatchResourceWithQuery(resource, queryLowerInvariant))
-                .Where(resource => resource.ResourceStatus == ResourceStatus.Approved)
-                .Where(resource => user.SecurityLevel >= resource.SecurityLevel)
+            var predicate = PredicateBuilder.New<Resource>(false)
+                .Or(MatchResourceWithQuery(query))
+                .Or(MatchResourceTagsWithQuery(query))
+                .And(HasStatus(ResourceStatus.Approved))
+                .And(SecurityLevelIsLesserThan(user.SecurityLevel));
+            
+            return _uow.ResourceRepository.FindByPredicate(predicate)
                 .OrderByDescending(resource => resource.Priority)
                 .ToList();
         }
-        public IList<Resource> SearchResourcesByFilterObject(ResourceFilter resourceFilter)
+
+        public override IList<Resource> SearchResourcesByFilterObject(ResourceFilter resourceFilter)
         {
-            var query = _uow.ResourceRepository.FindAllResources()
-                .Where(resource => MatchResourceWithFilterObject(resource, resourceFilter));
-            
-//            if (!string.IsNullOrEmpty(resourceFilter.AuthorName))
-//            {
-//                query = query.Where()
-//            }
+            var predicate = PredicateBuilder.New<Resource>(true)
+                .And(MatchResourceWithQuery(resourceFilter.Query))
+                .And(MatchResourceTagsWithTagsCollection(resourceFilter.Tags))
+                .And(MatchResourceWithCreationDateRange(resourceFilter.CreationDateRange))
+                .And(MatchResourceWithApprovalDateRange(resourceFilter.ApprovalDateRange));
 
-            if (resourceFilter.CreationDateRange != null)
-            {
-                query = query.Where(resource =>
-                    resource.CreationTimestamp < resourceFilter.CreationDateRange.Item2 &&
-                    resource.CreationTimestamp > resourceFilter.CreationDateRange.Item1);
-            }
-            
-            if (resourceFilter.ApprovalDateRange != null)
-            {
-                query = query.Where(resource =>
-                    resource.ApprovalTimestamp < resourceFilter.ApprovalDateRange.Item2 &&
-                    resource.ApprovalTimestamp > resourceFilter.ApprovalDateRange.Item1);
-            }
-
-            return query.ToList();
-        }
-
-        private static bool MatchResourceWithFilterObject(Resource resource, ResourceFilter resourceFilter)
-        {
-            var query = resourceFilter.Query.ToLowerInvariant();
-            if (!string.IsNullOrEmpty(query))
-            {
-                if (resource.Description.ToLowerInvariant().Contains(query))
-                {
-                    return true;
-                }
-
-                if (resource.Title.ToLowerInvariant().Contains(query))
-                {
-                    return true;
-                }
-
-                if (resource.FileName.ToLowerInvariant().Contains(query))
-                {
-                    return true;
-                }
-            }
-
-            if (resource.Tags != null && resourceFilter.Tags != null)
-            {
-                var hasSameElements = resource.Tags.Select(tag => tag.TagValue.ToLowerInvariant()).ToList()
-                    .Intersect(resourceFilter.Tags.Select(tag => tag.ToLowerInvariant()).ToList()).Any();
-                if (hasSameElements)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return _uow.ResourceRepository.FindByPredicate(predicate)
+                .OrderBy(resource => resource.Format).ToList();
         }
         
-        private static bool MatchResourceWithQuery(Resource resource, string query)
-        {
-            if (resource.Description.ToLowerInvariant().Contains(query))
-            {
-                return true;
-            }
-            if (resource.Title.ToLowerInvariant().Contains(query))
-            {
-                return true;
-            }
-            if (resource.FileName.ToLowerInvariant().Contains(query))
-            {
-                return true;
-            }
-
-            if (resource.Tags != null)
-            {
-                if (resource.Tags.Any(tag => tag.TagValue.ToLowerInvariant().Contains(query)))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         private List<Catalog> GetRootCatalogsForUserFilteredBySecurityLevel(int securityLevel)
         {
             return _uow.CatalogRepository.FindRootCatalogsFilteredBySecurityLevel(securityLevel);
+        }
+        private static Expression<Func<Resource, bool>> SecurityLevelIsLesserThan(int securityLevel)
+        {
+            return resource => resource.SecurityLevel <= securityLevel;
+        }
+        private static Expression<Func<Resource, bool>> HasStatus(ResourceStatus status)
+        {
+            return resource => resource.ResourceStatus == status;
         }
     }
 }

@@ -89,31 +89,31 @@
                                                      <div class="form-group">
                                                          <label for="filter">Фільтрувати за</label>
                                                          <select class="form-control" name="OrderBy">
-                                                             <option value="0" selected>Датою створення</option>
-                                                             <option value="1">форматом</option>
-                                                             <option value="2">Каталогом</option>
-                                                             <option value="3">Пріоритетом</option>
+                                                             <option value="CreationTimestamp" selected>Датою створення</option>
+                                                             <option value="Format">форматом</option>
+                                                             @* <option value="2">Catalog</option> *@
+                                                             <option value="Priority">Пріоритетом</option>
                                                          </select>
                                                      </div>
                                                      <div class="form-group">
                                                          <label for="contain">Назва/Опис/Імя файла</label>
-                                                         <input class="form-control" name="Query" type="text"/>
+                                                         <input class="form-control" name="Query" type="text" value="@ViewData["query"]"/>
                                                      </div>
                                                      <div class="form-group">
                                                          <label for="contain">Дата створення</label>
-                                                         <input type="text" class="form-control daterange" name="CreationDateRange" value=""/>
+                                                         <input type="text" class="form-control daterange" name="CreationDateRange" value="@ViewData["creationDateRange"]"/>
                                                      </div>
                                                      <div class="form-group">
                                                          <label for="contain">Дата затвердження</label>
-                                                         <input type="text" class="form-control daterange" name="ApprovalDateRange" value=""/>
+                                                         <input type="text" class="form-control daterange" name="ApprovalDateRange" value="@ViewData["approvalDateRange"]"/>
                                                      </div>
                                                      <div class="form-group">
                                                          <label for="contain">Автор</label>
-                                                         <input class="form-control" name="Author" type="text"/>
+                                                         <input class="form-control" name="Author" type="text" value="@ViewData["author"]"/>
                                                      </div>
                                                      <div class="form-group">
                                                          <label for="contain">Містить ключові слова</label>
-                                                         <input class="form-control" name="Tags" type="text"/>
+                                                         <input class="form-control" name="Tags" type="text" value="@ViewData["tags"]"/>
                                                      </div>
                                                      <button type="submit" class="btn btn-primary">
                                                          <span class="glyphicon glyphicon-search" aria-hidden="true"></span>

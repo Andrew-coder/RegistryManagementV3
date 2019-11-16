@@ -43,9 +43,9 @@ namespace RegistryManagementV3.Models.Domain
         [ForeignKey("CatalogId")]
         public virtual Catalog Catalog { get; set; }
         
-        public virtual List<TagResources> TagResources { get; set; }
+        public List<TagResources> TagResources { get; set; }
         
         [NotMapped]
-        public virtual ICollection<Tag> Tags => TagResources.Select(tag => new Tag { TagValue = tag.Tag.TagValue}).ToList();
+        public ICollection<Tag> Tags => TagResources.Select(tag => new Tag { TagValue = tag.Tag.TagValue}).ToList();
     }
 }
