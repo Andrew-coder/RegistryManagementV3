@@ -9,6 +9,7 @@ namespace RegistryManagementV3.Models
         public UnitOfWork(SecurityDbContext context)
         {
             _context = context;
+            UserRepository = new UserRepository(_context);
             UserGroupRepository = new UserGroupRepository(_context);
             CatalogRepository = new CatalogRepository(_context);
             ResourceRepository = new ResourceRepository(_context);
@@ -18,6 +19,7 @@ namespace RegistryManagementV3.Models
         public ResourceRepository ResourceRepository { get; }
         public CatalogRepository CatalogRepository { get; }
         public UserGroupRepository UserGroupRepository{ get; }
+        public UserRepository UserRepository { get; }
         public TagRepository TagRepository { get; }
         public void Save()
         {

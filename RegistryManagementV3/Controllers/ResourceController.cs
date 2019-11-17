@@ -1,11 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using RegistryManagementV3.Models;
 using RegistryManagementV3.Models.Domain;
-using RegistryManagementV3.Models.Repository;
 using RegistryManagementV3.Services;
 using RegistryManagementV3.Services.Extensions;
 
@@ -13,44 +11,19 @@ namespace RegistryManagementV3.Controllers
 {
     public class ResourceController : Controller
     {
-        private const int DefaultSecurityLevel = 5;
-        private readonly SecurityDbContext _db;
+        private readonly IUserService _userService;
         private readonly IResourceService _resourceService;
-        private readonly ICatalogService _catalogService;
 
-        public ResourceController(SecurityDbContext db, IResourceService resourceService, ICatalogService catalogService)
+        public ResourceController(IResourceService resourceService, IUserService userService)
         {
-            _db = db;
             _resourceService = resourceService;
-            _catalogService = catalogService;
-        }
-
-        // GET: Resource/Details/5
-        public ActionResult Details(int? id)
-        {
-            if (id == null)
-            {
-                return new StatusCodeResult(400);
-            }
-            var resource = _db.Resources.Find(id);
-            if (resource == null)
-            {
-                return new StatusCodeResult(404);
-            }
-            return View(resource);
+            _userService = userService;
         }
 
         // GET: Resource/Create
         public ActionResult Create(long? catalogId)
         {
-            var catalog = _catalogService.GetById(catalogId.GetValueOrDefault());
-            var securityLevel = DefaultSecurityLevel;
-            if (catalog != null)
-            {
-                securityLevel = catalog.SecurityLevel;
-            }
-
-            var createdResource = new ResourceViewModel {SecurityLevel = securityLevel, CatalogId = catalogId.GetValueOrDefault()};
+            var createdResource = new ResourceViewModel {CatalogId = catalogId.GetValueOrDefault()};
             return View(createdResource);
         }
 
@@ -61,10 +34,12 @@ namespace RegistryManagementV3.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(ResourceViewModel resourceViewModel)
         {
-            var catalogId = resourceViewModel.CatalogId ?? 0;
             try
             {
-                _resourceService.CreateResource(resourceViewModel, catalogId);
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var user = _userService.GetById(userId);
+                
+                _resourceService.CreateResourceOnBehalfOfUser(resourceViewModel, user);
                 return RedirectToAction("Index", "Catalog");
             }
             catch (Exception ex)
@@ -74,26 +49,20 @@ namespace RegistryManagementV3.Controllers
 
             return View(resourceViewModel);
         }
+        
+        //GET: Resource/MakeEditable
+        public ActionResult MakeEditable(long id)
+        {
+            var resource = _resourceService.MakeEditable(id);
+            ViewBag.Readonly = !resource.IsEditable;
+            return View("Edit", resource);
+        }
 
         // GET: Resource/Edit/5
-        public ActionResult Edit(long? id)
+        public ActionResult Edit(long id)
         {
-            if (id == null)
-            {
-                return new StatusCodeResult(400);
-            }
-
-            var resource = _db.Resources
-                .Where(tag => tag.Id.Equals(id.Value))
-                .Include(s => s.Catalog)
-                .Include(s => s.TagResources)
-                .ThenInclude(tr => tr.Tag)
-                .FirstOrDefault();
-            
-            if (resource == null)
-            {
-                return new StatusCodeResult(404);
-            }
+            var resource = _resourceService.GetById(id);
+            ViewBag.Readonly = !resource.IsEditable;
             return View(resource);
         }
 
@@ -121,28 +90,18 @@ namespace RegistryManagementV3.Controllers
         }
 
         // GET: Resource/Delete/5
-        public ActionResult Delete(int? id)
+        public ActionResult Delete(long id)
         {
-            if (id == null)
-            {
-                return new StatusCodeResult(400);
-            }
-            var resource = _db.Resources.Find(id);
-            if (resource == null)
-            {
-                return new StatusCodeResult(404);
-            }
+            var resource = _resourceService.GetById(id);
             return View(resource);
         }
 
         // POST: Resource/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        public ActionResult DeleteConfirmed(long id)
         {
-            var resource = _db.Resources.Find(id);
-            _db.Resources.Remove(resource);
-            _db.SaveChanges();
+            _resourceService.MarkResourceAsDeleted(id);
             return RedirectToAction("Index", "Catalog");
         }
 

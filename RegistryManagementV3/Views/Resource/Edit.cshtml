@@ -7,13 +7,14 @@
     <script src="~/Static/Scripts/bootstrap-tagsinput.js"></script>
 }    
 
-<h2>Edit</h2>
-
+<h2>Перегляд</h2>
+<p class="text-danger">
+      @ViewBag.Message
+</p>
 @using (Html.BeginForm("Edit", "Resource", FormMethod.Post))
 {
     @Html.AntiForgeryToken()
-@*     @Html.HiddenFor(model => model.Id) *@
-@*     @Html.HiddenFor(model => Model.CatalogId) *@
+
     <input type="hidden" name="Id" id="Id" value="@Model.Id" />
     <input type="hidden" name="CatalogId" id="CatalogId" value="@Model.CatalogId" />
 <div class="form-horizontal">
@@ -23,16 +24,18 @@
     @Html.HiddenFor(model => Model.Id)
 
     @Html.LabelFor(model => Model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
-    <div class="col-md-10">
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        @Html.EditorFor(model => Model.Title, new { htmlAttributes = new { @class = "form-control" } })
+    <div class="form-group">
+        <div class="col-md-10">
+            @Html.ValidationSummary(true, "", new {@class = "text-danger"})
+            @Html.EditorFor(model => Model.Title, ViewBag.Readonly ? (object) new {htmlAttributes = new {@class = "form-control", @readonly = "readonly"}} : new {htmlAttributes = new {@class = "form-control"}})
+        </div>
     </div>
 
     <div class="form-group">
         @Html.LabelFor(model => Model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            @Html.EditorFor(model => Model.Description, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.EditorFor(model => Model.Description, ViewBag.Readonly ? (object)new { htmlAttributes = new { @class = "form-control", @readonly = "readonly"}}: new { htmlAttributes = new { @class = "form-control" } })
         </div>
     </div>
 
@@ -40,7 +43,7 @@
         @Html.LabelFor(model => Model.Language, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            @Html.EditorFor(model => Model.Language, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.EditorFor(model => Model.Language, ViewBag.Readonly ? (object)new { htmlAttributes = new { @class = "form-control", @readonly = "readonly"}}: new { htmlAttributes = new { @class = "form-control" } })
         </div>
     </div>
 
@@ -48,14 +51,22 @@
         @Html.LabelFor(model => Model.Format, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            @Html.EditorFor(model => model.Format, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.EditorFor(model => model.Format, new { htmlAttributes = new { @class = "form-control", @readonly="readonly"} })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => Model.Author, new {@class = "control-label col-md-2"})
+        <div class="col-md-10">
+            @Html.EditorFor(model => Model.Author.UserName, new { htmlAttributes = new { @class = "form-control", @readonly="readonly"} })
+            @Html.ValidationMessageFor(model => Model.SecurityLevel, "", new {@class = "text-danger"})
         </div>
     </div>
 
     <div class="form-group">
         @Html.LabelFor(model => Model.SecurityLevel, new { @class = "control-label col-md-2" })
         <div class="col-md-10">
-            @Html.EditorFor(model => Model.SecurityLevel, new { htmlAttributes = new { @class = "form-control", min = 1, max = 10 } })
+            @Html.EditorFor(model => Model.SecurityLevel, ViewBag.Readonly ? (object)new { htmlAttributes = new { @class = "form-control", @readonly = "readonly"}}: new { htmlAttributes = new { @class = "form-control", min = 1, max = 10 } })
             @Html.ValidationMessageFor(model => Model.SecurityLevel, "", new { @class = "text-danger" })
         </div>
     </div>
@@ -64,7 +75,7 @@
         <label class="control-label col-md-2" for="Catalog_Name">Catalog</label>
         <div class="col-md-10">
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            @Html.EditorFor(model => Model.Catalog.Name, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.EditorFor(model => Model.Catalog.Name, new { htmlAttributes = new { @class = "form-control", @readonly="readonly"} })
         </div>
     </div>
 
@@ -74,7 +85,7 @@
             @Html.LabelFor(model => Model.Priority, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                @Html.EditorFor(model => Model.Priority, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => Model.Priority, ViewBag.Readonly ? (object)new { htmlAttributes = new { @class = "form-control", @readonly = "readonly"}}: new { htmlAttributes = new { @class = "form-control" } })
             </div>
         </div>
 
@@ -94,13 +105,6 @@
                 <input id="tags" name="Tags" value="" data-role="tagsinput" class="form-control"/>
             </div>
         </div>
-        
-        <div class="form-group">
-            @Html.LabelFor(model => Model.IsEditable, htmlAttributes: new { @class = "form-check-label control-label col-md-2" })
-            <div class="col-md-3">
-                <input id="IsEditable" name="IsEditable" type="checkbox" value="" data-role="tagsinput" class="form-control"/>
-            </div>
-        </div>
     }
 
     <div class="form-group">
@@ -109,6 +113,10 @@
             <a href=@Url.Action("DownloadResourceDocument", "Resource", new {
                         fileName = Model.Location
                     }) class="d-inline btn btn-info" role="button">Завантажити документ</a>
+            <a href=@Url.Action("MakeEditable", "Resource", new
+                    {
+                        id = Model.Id
+                    }) class="d-inline btn btn-info" role="button">Дозволити редагування</a>
             @if (User.IsInRole("Admin"))
             {
                 if (Model.ResourceStatus != ResourceStatus.Approved)
@@ -140,6 +148,11 @@
                 $('#tags').tagsinput('add', value);
                 console.log(value);
             });
+            let isReadonly = JSON.parse('@ViewData["Readonly"]'.toLowerCase());
+            if(isReadonly) {
+                console.log("isEditable " + isReadonly);
+                $('div.bootstrap-tagsinput input').prop('readonly', true);
+            }
         });
     </script>
 }

@@ -35,8 +35,10 @@ namespace RegistryManagementV3.Services.resources
             {
                 return PredicateBuilder.New<Resource>(true);
             }
-            var predicate = PredicateBuilder.New<Resource>(false);
-            return predicate.Or(resource => resource.TagResources.Any(tag => tag.Tag.TagValue.ToLower().Contains(tagsQuery.ToLower())));
+
+            return PredicateBuilder.New<Resource>(false)
+                .Or(resource =>
+                    resource.TagResources.Any(tag => tag.Tag.TagValue.ToLower().Contains(tagsQuery.ToLower())));
         }
         
         protected static Expression<Func<Resource, bool>> MatchResourceTagsWithTagsCollection(IReadOnlyCollection<string> tagsQuery)
@@ -54,6 +56,17 @@ namespace RegistryManagementV3.Services.resources
             }
 
             return predicate;
+        }
+
+        protected static Expression<Func<Resource, bool>> MatchResourceWithAuthorName(string authorName)
+        {
+            if (string.IsNullOrEmpty(authorName))
+            {
+                return PredicateBuilder.New<Resource>(true);
+            }
+            
+            return PredicateBuilder.New<Resource>(true)
+                .And(resource => resource.Author.UserName.ToLower().Contains(authorName.ToLower()));
         }
         
         protected static Expression<Func<Resource, bool>> MatchResourceWithCreationDateRange(Tuple<DateTime, DateTime> creationDateRange)

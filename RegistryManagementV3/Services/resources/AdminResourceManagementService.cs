@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using LinqKit;
+using Microsoft.EntityFrameworkCore;
 using RegistryManagementV3.Models;
 using RegistryManagementV3.Models.Domain;
 
@@ -57,6 +56,7 @@ namespace RegistryManagementV3.Services.resources
                 .Or(MatchResourceTagsWithQuery(query));
 
             return _uow.ResourceRepository.FindByPredicate(predicate)
+                .AsNoTracking()
                 .OrderByDescending(resource => resource.Priority)
                 .ToList();
         }
@@ -66,10 +66,12 @@ namespace RegistryManagementV3.Services.resources
             var predicate = PredicateBuilder.New<Resource>(true)
                 .And(MatchResourceWithQuery(resourceFilter.Query))
                 .And(MatchResourceTagsWithTagsCollection(resourceFilter.Tags))
+                .And(MatchResourceWithAuthorName(resourceFilter.AuthorName))
                 .And(MatchResourceWithCreationDateRange(resourceFilter.CreationDateRange))
                 .And(MatchResourceWithApprovalDateRange(resourceFilter.ApprovalDateRange));
 
             return _uow.ResourceRepository.FindByPredicate(predicate)
+                .AsNoTracking()
                 .OrderBy(resource => resource.Format).ToList();
         }
     }

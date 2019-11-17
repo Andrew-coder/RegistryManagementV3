@@ -1,7 +1,9 @@
-﻿namespace RegistryManagementV3.Services
+﻿using RegistryManagementV3.Models.Domain;
+
+namespace RegistryManagementV3.Services
 {
     public interface IUserService
     {
-        //User LoginUser(string login, string password);
+        ApplicationUser GetById(string id);
     }
 }

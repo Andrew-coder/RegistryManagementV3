@@ -1,20 +1,21 @@
 ﻿using RegistryManagementV3.Models;
+using RegistryManagementV3.Models.Domain;
+using RegistryManagementV3.Models.Repository;
 
 namespace RegistryManagementV3.Services
 {
     public class UserService : IUserService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _uow;
 
-        public UserService(IUnitOfWork unitOfWork)
+        public UserService(IUnitOfWork uow)
         {
-            _unitOfWork = unitOfWork;
+            _uow = uow;
         }
 
-
-        //public User LoginUser(string email, string password)
-        //{
-        //    return _unitOfWork.UserRepository.AllEntities.SingleOrDefault(x => x.Email == email && x.Password == password);
-        //}
+        public ApplicationUser GetById(string id)
+        {
+            return _uow.UserRepository.GetById(id);
+        }
     }
 }

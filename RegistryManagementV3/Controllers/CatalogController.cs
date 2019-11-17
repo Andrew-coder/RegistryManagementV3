@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using RegistryManagementV3.Models;
 using RegistryManagementV3.Models.Domain;
-using RegistryManagementV3.Models.Repository;
 using RegistryManagementV3.Services;
 using RegistryManagementV3.Services.resources;
 
@@ -19,15 +16,13 @@ namespace RegistryManagementV3.Controllers
     {
         private readonly ICatalogService _catalogService;
         private readonly IUserGroupService _userGroupService;
-        private readonly SecurityDbContext _db;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ResourceManagementStrategy _resourceManagementStrategy;
 
-        public CatalogController(ICatalogService catalogService, IUserGroupService userGroupService, SecurityDbContext db, UserManager<ApplicationUser> userManager, ResourceManagementStrategy resourceManagementStrategy)
+        public CatalogController(ICatalogService catalogService, IUserGroupService userGroupService, UserManager<ApplicationUser> userManager, ResourceManagementStrategy resourceManagementStrategy)
         {
             _catalogService = catalogService;
             _userGroupService = userGroupService;
-            _db = db;
             _userManager = userManager;
             _resourceManagementStrategy = resourceManagementStrategy;
         }
@@ -49,17 +44,9 @@ namespace RegistryManagementV3.Controllers
         }
 
         // GET: Catalog/Details/5
-        public ActionResult Details(int? id)
+        public ActionResult Details(long id)
         {
-            if (id == null)
-            { 
-                return new StatusCodeResult(400);
-            }
-            var catalog = _db.Catalogs.Find(id);
-            if (catalog == null)
-            {
-                return new StatusCodeResult(404);
-            }
+            var catalog = _catalogService.GetById(id);
             return View(catalog);
         }
         
@@ -88,17 +75,9 @@ namespace RegistryManagementV3.Controllers
         }
 
         // GET: Catalog/Edit/5
-        public ActionResult Edit(int? id)
+        public ActionResult Edit(long id)
         {
-            if (id == null)
-            {
-                return new StatusCodeResult(400);
-            }
-            var catalog = _db.Catalogs.Find(id);
-            if (catalog == null)
-            {
-                return new StatusCodeResult(404);
-            }
+            var catalog = _catalogService.GetById(id);
             return View(catalog);
         }
 
@@ -107,35 +86,22 @@ namespace RegistryManagementV3.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind("Id,Name")] Catalog catalog)
+        public ActionResult Edit(CatalogViewModel catalog)
         {
             if (ModelState.IsValid)
             {
-                _db.Entry(catalog).State = EntityState.Modified;
-                _db.SaveChanges();
+//                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(catalog);
         }
 
         // GET: Catalog/Delete/5
-        public ActionResult Delete(long? catalogId)
+        public ActionResult Delete(long catalogId)
         {
-            if (catalogId == null)
+            if (!_catalogService.ContainsSubCatalogs(catalogId))
             {
-                return new StatusCodeResult(400);
-            }
-
-            var id = catalogId.GetValueOrDefault();
-            var catalog = _db.Catalogs.Find(id);
-            if (catalog == null)
-            {
-                return new StatusCodeResult(404);
-            }
-
-            if (!_catalogService.ContainsSubCatalogs(id))
-            {
-                _catalogService.RemoveCatalog(id);
+                _catalogService.RemoveCatalog(catalogId);
             }
             return RedirectToAction("Index", "Catalog");
         }

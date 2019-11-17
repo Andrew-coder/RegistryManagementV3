@@ -16,7 +16,7 @@ namespace RegistryManagementV3.Models.Repository
         }
         public IQueryable<T> AllEntities => Context.Set<T>();
 
-        public T GetById(long id)
+        public virtual T GetById(long id)
         {
             return Context.Set<T>().Find(id);
         }

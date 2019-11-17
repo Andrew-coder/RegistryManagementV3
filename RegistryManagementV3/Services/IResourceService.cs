@@ -10,8 +10,11 @@ namespace RegistryManagementV3.Services
     {
         List<Resource> GetAllResources(long? catalogId);
         Resource GetById(long id);
-        void CreateResource(ResourceViewModel resourceViewModel, long catalogId);
+        void CreateResourceOnBehalfOfUser(ResourceViewModel resourceViewModel, ApplicationUser user);
         void ApproveResource(long resourceId);
         void UpdateResource(UpdateResourceViewModel resourceViewModel, Resource resource);
+
+        Resource MakeEditable(long id);
+        void MarkResourceAsDeleted(long id);
     }
 }

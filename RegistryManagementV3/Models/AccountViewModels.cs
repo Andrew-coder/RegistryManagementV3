@@ -77,7 +77,7 @@ namespace RegistryManagementV3.Models
         [DefaultValue(5)]
         [Range(1, 10)]
         [Display(Name = "Пріоритет")]
-        public int? Priority { get; set; }
+        public int Priority { get; set; }
 
         public long? CatalogId { get; set; }
 
@@ -112,8 +112,9 @@ namespace RegistryManagementV3.Models
         [Display(Name = "Файл")]
         public IFormFile ResourceFile { get; set; }
 
+        [DefaultValue(5)]
         [Display(Name = "Пріоритет")]
-        public int? Priority { get; set; }
+        public int Priority { get; set; }
 
         public int? CatalogId { get; set; }
 

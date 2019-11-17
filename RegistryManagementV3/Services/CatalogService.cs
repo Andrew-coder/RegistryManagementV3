@@ -2,6 +2,7 @@
 using System.Linq;
 using RegistryManagementV3.Models;
 using RegistryManagementV3.Models.Domain;
+using RegistryManagementV3.Models.Exception;
 
 namespace RegistryManagementV3.Services
 {
@@ -49,7 +50,7 @@ namespace RegistryManagementV3.Services
 
         public void RemoveCatalog(long catalogId)
         {
-            Catalog catalog = _uow.CatalogRepository.GetById(catalogId);
+            var catalog = _uow.CatalogRepository.GetById(catalogId);
             _uow.CatalogRepository.Remove(catalog);
             _uow.Save();
         }

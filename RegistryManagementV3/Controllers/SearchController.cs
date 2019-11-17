@@ -44,6 +44,20 @@ namespace RegistryManagementV3.Controllers
         [HttpPost]
         public async Task<ActionResult> SearchFilters(SearchFilterViewModel searchFilterViewModel)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = _userManager.FindByIdAsync(userId).Result;
+            var roles = await _userManager.GetRolesAsync(user);
+            var managementService = _resourceManagementStrategy.FindService(roles.FirstOrDefault());
+            
+            var resourceFilter = ConvertToSearchFilterDto(searchFilterViewModel);
+            var resources = managementService.SearchResourcesByFilterObject(resourceFilter);
+
+            InitializeSubmittedFormInfomationInViewData(searchFilterViewModel);
+            return View("SearchResults", resources);
+        }
+
+        private static ResourceFilter ConvertToSearchFilterDto(SearchFilterViewModel searchFilterViewModel)
+        {
             var tagNames = new Collection<string>();
             if (!string.IsNullOrEmpty(searchFilterViewModel.Tags))
             {
@@ -53,25 +67,22 @@ namespace RegistryManagementV3.Controllers
             var creationDateRange = searchFilterViewModel.CreationDateRange.ParseToDateRange();
             var approvalDateRange = searchFilterViewModel.ApprovalDateRange.ParseToDateRange();
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = _userManager.FindByIdAsync(userId).Result;
-            var roles = await _userManager.GetRolesAsync(user);
-            var managementService = _resourceManagementStrategy.FindService(roles.FirstOrDefault());
-
-            var resources = managementService.SearchResourcesByFilterObject(new ResourceFilter()
+            return new ResourceFilter()
             {
                 Query = searchFilterViewModel.Query, Tags = tagNames, CreationDateRange = creationDateRange,
-                ApprovalDateRange = approvalDateRange, OrderBy = searchFilterViewModel.OrderBy
-            });
+                ApprovalDateRange = approvalDateRange, AuthorName = searchFilterViewModel.Author,
+                OrderBy = searchFilterViewModel.OrderBy
+            };
+        }
 
+        private void InitializeSubmittedFormInfomationInViewData(SearchFilterViewModel searchFilterViewModel)
+        {
             ViewData["query"] = searchFilterViewModel.Query;
             ViewData["creationDateRange"] = searchFilterViewModel.CreationDateRange;
             ViewData["approvalDateRange"] = searchFilterViewModel.ApprovalDateRange;
             ViewData["author"] = searchFilterViewModel.Author;
             ViewData["tags"] = searchFilterViewModel.Tags;
             ViewData["orderBy"] = searchFilterViewModel.OrderBy;
-            
-            return View("SearchResults", resources);
         }
     }
 }

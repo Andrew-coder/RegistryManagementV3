@@ -13,6 +13,7 @@ namespace RegistryManagementV3.Models
         ResourceRepository ResourceRepository { get; }
         CatalogRepository CatalogRepository { get; }
         UserGroupRepository UserGroupRepository { get; }
+        UserRepository UserRepository { get; }
         TagRepository TagRepository { get; }
         void Save();
     }

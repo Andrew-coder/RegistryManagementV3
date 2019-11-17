@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using RegistryManagementV3.Models;
 using RegistryManagementV3.Models.Domain;
-using RegistryManagementV3.Models;
-using RegistryManagementV3.Models.Domain;
-using RegistryManagementV3.Services;
 using RegistryManagementV3.Services.Extensions;
 
 namespace RegistryManagementV3.Services
@@ -26,12 +25,13 @@ namespace RegistryManagementV3.Services
 
         public List<Resource> GetAllResources(long? catalogId)
         {
-            var resources = new List<Resource>();
+            List<Resource> resources;
             if (catalogId.HasValue)
             {
                 resources = _uow.ResourceRepository
                     .AllEntities
                     .Where(resource => resource.CatalogId == catalogId)
+                    .AsNoTracking()
                     .ToList();
             }
             else
@@ -39,6 +39,7 @@ namespace RegistryManagementV3.Services
                 resources = _uow.ResourceRepository
                     .AllEntities
                     .Where(resource => resource.Catalog == null)
+                    .AsNoTracking()
                     .ToList();
             }
             return resources;
@@ -49,7 +50,15 @@ namespace RegistryManagementV3.Services
             return _uow.ResourceRepository.GetById(id);
         }
 
-        public void CreateResource(ResourceViewModel resourceViewModel, long catalogId)
+        public Resource MakeEditable(long id)
+        {
+            var resource = _uow.ResourceRepository.GetById(id);
+            resource.IsEditable = true;
+            _uow.Save();
+            return resource;
+        }
+
+        public void CreateResourceOnBehalfOfUser(ResourceViewModel resourceViewModel, ApplicationUser author)
         {
             var file = resourceViewModel.ResourceFile;
             var fileName = file.FileName;
@@ -58,8 +67,8 @@ namespace RegistryManagementV3.Services
                 file.CopyTo(fileStream);
             }
             
-            var catalog = _uow.CatalogRepository.GetById(catalogId);
-            var priority = resourceViewModel.Priority ?? 0;
+            var catalog = _uow.CatalogRepository.GetById(resourceViewModel.CatalogId.GetValueOrDefault());
+            var priority = resourceViewModel.Priority;
             var tagNames = new Collection<string>(resourceViewModel.Tags.Split(','));
             var fileExtension = Path.GetExtension(fileName);
             var tags = _tagService.GetTagsWithNames(tagNames);
@@ -69,7 +78,9 @@ namespace RegistryManagementV3.Services
                 Description = resourceViewModel.Description,
                 Language = resourceViewModel.Language,
                 Format = fileExtension,
+                Author = author,
                 SecurityLevel = resourceViewModel.SecurityLevel,
+                CreationTimestamp = DateTime.Now,
                 FileName = fileName,
                 Location = path,
                 Priority = priority,
@@ -86,6 +97,7 @@ namespace RegistryManagementV3.Services
             }).ToList();
             
             resource.TagResources.AddRange(tagResources);
+            
             tags.Where(tag => tag.Id == null)
                 .ToList()
                 .ForEach(tag => _uow.TagRepository.Add(tag));
@@ -96,6 +108,7 @@ namespace RegistryManagementV3.Services
         public void ApproveResource(long resourceId)
         {
             var resource =_uow.ResourceRepository.GetById(resourceId);
+            resource.ApprovalTimestamp = DateTime.Now;
             resource.ResourceStatus = ResourceStatus.Approved;
             _uow.Save();
         }
@@ -112,6 +125,11 @@ namespace RegistryManagementV3.Services
             var tags = _tagService.GetTagsWithNames(tagNames);
             //tags.Except(resource.Tags).ToList().ForEach(tag => resource.Tags.Add(tag));
             _uow.Save();
+        }
+
+        public void MarkResourceAsDeleted(long id)
+        {
+            throw new NotImplementedException();
         }
 
         private static TagResources WireTagWithResource(Tag tag, Resource resource)

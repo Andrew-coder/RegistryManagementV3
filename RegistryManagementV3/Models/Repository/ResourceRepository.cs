@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using RegistryManagementV3.Models.Domain;
+using RegistryManagementV3.Models.Exception;
 
 namespace RegistryManagementV3.Models.Repository
 {
@@ -19,6 +20,23 @@ namespace RegistryManagementV3.Models.Repository
             return Context.Resources
                 .Where(resource => resource.Catalog == null)
                 .ToList();
+        }
+        
+        public override Resource GetById(long id)
+        {
+            var foundResource = Context.Resources
+                .Include(resource => resource.Author)
+                .Include(resource => resource.Catalog)
+                .Include(resource => resource.TagResources)
+                .ThenInclude(tr => tr.Tag)
+                .FirstOrDefault(resource => resource.Id == id);
+            
+            if (foundResource == null)
+            {
+                throw new EntityNotFoundException($"Resource entity with id [{id}] was not found");
+            }
+
+            return foundResource;
         }
 
         public override IQueryable<Resource> FindByPredicate(Expression<Func<Resource, bool>> predicate)
