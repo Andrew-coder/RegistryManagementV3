@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Claims;
 using LinqKit;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RegistryManagementV3.Models;
 using RegistryManagementV3.Models.Domain;
@@ -63,18 +66,21 @@ namespace RegistryManagementV3.Services.resources
                 .ToList();
         }
 
-        public override IList<Resource> SearchResourcesByFilterObject(ResourceFilter resourceFilter)
+        public override IList<Resource> SearchResourcesByFilterObject(ResourceFilter resourceFilter, ApplicationUser user)
         {
             var predicate = PredicateBuilder.New<Resource>(true)
                 .And(MatchResourceWithQuery(resourceFilter.Query))
                 .And(MatchResourceTagsWithTagsCollection(resourceFilter.Tags))
                 .And(MatchResourceWithAuthorName(resourceFilter.AuthorName))
                 .And(MatchResourceWithCreationDateRange(resourceFilter.CreationDateRange))
-                .And(MatchResourceWithApprovalDateRange(resourceFilter.ApprovalDateRange));
+                .And(MatchResourceWithApprovalDateRange(resourceFilter.ApprovalDateRange))
+                .And(HasStatus(ResourceStatus.Approved))
+                .And(SecurityLevelIsLesserThan(user.SecurityLevel));
 
             return _uow.ResourceRepository.FindByPredicate(predicate)
                 .AsNoTracking()
-                .OrderBy(resource => resource.Format).ToList();
+                .OrderByDescending(KeyExtractors.GetValueOrDefault(resourceFilter.OrderBy, resource => resource.Priority))
+                .ToList();
         }
         
         private List<Catalog> GetRootCatalogsForUserFilteredBySecurityLevel(int securityLevel)

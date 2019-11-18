@@ -13,18 +13,18 @@
     @Html.HiddenFor(model => model.Item1.CatalogId, new {id = "Item1_CatalogId", Value = Model.Item3 })
     @Html.AntiForgeryToken()
 
-     <div class="form-horizontal">
-         <h4>Каталог</h4>
-         <hr />
-         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-         <div class="form-group">
-             @Html.LabelFor(model => model.Item1.Name, new { @class = "control-label col-md-2" })
-             <div class="col-md-10">
-                 @*<input value=@Request.Params["catalogId"] id="Item1_CatalogId" name="CatalogId" type="hidden">*@
-                 <input class="form-control text-box single-line" data-val="true" data-val-required="Требуется поле Name." id="catalog.Name" name="Name" type="text" value="">
-                 @Html.ValidationMessageFor(model => model.Item1.Name, "", new { @class = "text-danger" })
-             </div>
-         </div>
+    <div class="form-horizontal">
+        <h4>Каталог</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Item1.Name, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @*<input value=@Request.Params["catalogId"] id="Item1_CatalogId" name="CatalogId" type="hidden">*@
+                <input class="form-control text-box single-line" data-val="true" data-val-required="Требуется поле Name." id="catalog.Name" name="Name" type="text" value="">
+                @Html.ValidationMessageFor(model => model.Item1.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
 
         <div class="form-group">
             @Html.LabelFor(model => model.Item1.SecurityLevel, new { @class = "control-label col-md-2" })
@@ -33,18 +33,10 @@
                 @Html.ValidationMessageFor(model => model.Item1.SecurityLevel, "", new { @class = "text-danger" })
             </div>
         </div>
-
-        <div class="form-group">
-            <label>Виберіть користувацькі групи</label>
-
-            <div class="col-md-3">
-                <input id="select-with-type" name="Groups" />
-            </div>
-            <div class="form-group">
-                <div class="col-md-offset-2 col-md-10">
-                    <input type="submit" value="Створити" class="btn btn-default" />
-                </div>
-            </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value="Створити" class="btn btn-default" />
         </div>
     </div>
 }

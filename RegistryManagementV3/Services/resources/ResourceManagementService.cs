@@ -13,8 +13,13 @@ namespace RegistryManagementV3.Services.resources
         public abstract List<Resource> GetResourcesByParentCatalog(long? parentCatalogId, ApplicationUser user);
         public abstract IList<Resource> SearchResourcesByQuery(string query, ApplicationUser user);
 
-        public abstract IList<Resource> SearchResourcesByFilterObject(ResourceFilter resourceFilter);
+        public abstract IList<Resource> SearchResourcesByFilterObject(ResourceFilter resourceFilter, ApplicationUser user);
         
+        protected Dictionary<string, Expression<Func<Resource, object>>> KeyExtractors = new Dictionary<string, Expression<Func<Resource, object>>>() {
+                              {"Format", resource => resource.Format}, 
+                              {"CreationTimestamp", resource => resource.CreationTimestamp}, 
+                              {"Priority", resource => resource.Priority}};
+                      
         protected static Expression<Func<Resource, bool>> MatchResourceWithQuery(string query)
         {
             if (string.IsNullOrEmpty(query))

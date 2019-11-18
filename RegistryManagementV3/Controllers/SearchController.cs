@@ -50,7 +50,7 @@ namespace RegistryManagementV3.Controllers
             var managementService = _resourceManagementStrategy.FindService(roles.FirstOrDefault());
             
             var resourceFilter = ConvertToSearchFilterDto(searchFilterViewModel);
-            var resources = managementService.SearchResourcesByFilterObject(resourceFilter);
+            var resources = managementService.SearchResourcesByFilterObject(resourceFilter, user);
 
             InitializeSubmittedFormInfomationInViewData(searchFilterViewModel);
             return View("SearchResults", resources);

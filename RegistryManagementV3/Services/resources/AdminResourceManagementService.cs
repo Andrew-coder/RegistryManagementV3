@@ -62,7 +62,7 @@ namespace RegistryManagementV3.Services.resources
                 .ToList();
         }
 
-        public override IList<Resource> SearchResourcesByFilterObject(ResourceFilter resourceFilter)
+        public override IList<Resource> SearchResourcesByFilterObject(ResourceFilter resourceFilter, ApplicationUser user)
         {
             var predicate = PredicateBuilder.New<Resource>(true)
                 .And(MatchResourceWithQuery(resourceFilter.Query))
@@ -74,7 +74,8 @@ namespace RegistryManagementV3.Services.resources
 
             return _uow.ResourceRepository.FindByPredicate(predicate)
                 .AsNoTracking()
-                .OrderBy(resource => resource.Format).ToList();
+                .OrderByDescending(KeyExtractors.GetValueOrDefault(resourceFilter.OrderBy, resource => resource.Priority))
+                .ToList();
         }
     }
 }

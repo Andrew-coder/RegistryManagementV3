@@ -86,6 +86,7 @@ namespace RegistryManagementV3.Controllers
             {
                 _resourceService.UpdateResource(resourceViewModel, resource);
             }
+            ViewBag.Readonly = !resource.IsEditable;
             return View(resource);
         }
 

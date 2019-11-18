@@ -48,6 +48,22 @@
     </div>
 
     <div class="form-group">
+        @Html.LabelFor(model => Model.CreationTimestamp, htmlAttributes: new {@class = "control-label col-md-2"})
+        <div class="col-md-10">
+            @Html.ValidationSummary(true, "", new {@class = "text-danger"})
+            @Html.EditorFor(model => model.CreationTimestamp, new {htmlAttributes = new {@class = "form-control", @readonly = "readonly"}})
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => Model.ApprovalTimestamp, htmlAttributes: new {@class = "control-label col-md-2"})
+        <div class="col-md-10">
+            @Html.ValidationSummary(true, "", new {@class = "text-danger"})
+            @Html.EditorFor(model => model.ApprovalTimestamp, new {htmlAttributes = new {@class = "form-control", @readonly = "readonly"}})
+        </div>
+    </div>
+
+    <div class="form-group">
         @Html.LabelFor(model => Model.Format, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
