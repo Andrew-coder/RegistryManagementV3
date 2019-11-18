@@ -7,7 +7,7 @@ using RegistryManagementV3.Models.Domain;
 
 namespace RegistryManagementV3.Services.resources
 {
-    public abstract class IResourceManagementService
+    public abstract class ResourceManagementService
     {
         public abstract List<Catalog> GetCatalogsByParentCatalog(long? parentCatalogId, ApplicationUser user);
         public abstract List<Resource> GetResourcesByParentCatalog(long? parentCatalogId, ApplicationUser user);
@@ -89,6 +89,11 @@ namespace RegistryManagementV3.Services.resources
             return PredicateBuilder.New<Resource>(true)
                 .And(resource => resource.ApprovalTimestamp > approvalDateRange.Item1)
                 .And(resource => resource.ApprovalTimestamp < approvalDateRange.Item2);
+        }
+        
+        protected static Expression<Func<Resource, bool>> NotInStatus(ResourceStatus status)
+        {
+            return resource => resource.ResourceStatus != status;
         }
     }
 }

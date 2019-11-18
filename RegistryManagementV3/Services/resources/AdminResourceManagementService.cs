@@ -7,7 +7,7 @@ using RegistryManagementV3.Models.Domain;
 
 namespace RegistryManagementV3.Services.resources
 {
-    public class AdminResourceManagementService : IResourceManagementService
+    public class AdminResourceManagementService : ResourceManagementService
     {
         private readonly IUnitOfWork _uow;
 
@@ -53,7 +53,8 @@ namespace RegistryManagementV3.Services.resources
         {
             var predicate = PredicateBuilder.New<Resource>(false)
                 .Or(MatchResourceWithQuery(query))
-                .Or(MatchResourceTagsWithQuery(query));
+                .Or(MatchResourceTagsWithQuery(query))
+                .And(NotInStatus(ResourceStatus.Removed));
 
             return _uow.ResourceRepository.FindByPredicate(predicate)
                 .AsNoTracking()
@@ -68,7 +69,8 @@ namespace RegistryManagementV3.Services.resources
                 .And(MatchResourceTagsWithTagsCollection(resourceFilter.Tags))
                 .And(MatchResourceWithAuthorName(resourceFilter.AuthorName))
                 .And(MatchResourceWithCreationDateRange(resourceFilter.CreationDateRange))
-                .And(MatchResourceWithApprovalDateRange(resourceFilter.ApprovalDateRange));
+                .And(MatchResourceWithApprovalDateRange(resourceFilter.ApprovalDateRange))
+                .And(NotInStatus(ResourceStatus.Removed));
 
             return _uow.ResourceRepository.FindByPredicate(predicate)
                 .AsNoTracking()

@@ -11,6 +11,8 @@ namespace RegistryManagementV3.Models.Domain
         PendingForCreationApprove,
         
         [Display(Name = "чекає підтвердження на зміну")]
-        PendingForEditApprove
+        PendingForEditApprove,
+        
+        Removed
     }
 }

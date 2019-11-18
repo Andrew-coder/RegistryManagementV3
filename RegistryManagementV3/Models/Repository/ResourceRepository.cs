@@ -19,6 +19,8 @@ namespace RegistryManagementV3.Models.Repository
         {
             return Context.Resources
                 .Where(resource => resource.Catalog == null)
+                .Where(resource => resource.ResourceStatus != ResourceStatus.Removed)
+                .AsNoTracking()
                 .ToList();
         }
         
@@ -53,6 +55,8 @@ namespace RegistryManagementV3.Models.Repository
         {
             return Context.Resources
                 .Where(resource => resource.CatalogId == catalogId)
+                .Where(resource => resource.ResourceStatus != ResourceStatus.Removed)
+                .AsNoTracking()
                 .ToList();
         }
 

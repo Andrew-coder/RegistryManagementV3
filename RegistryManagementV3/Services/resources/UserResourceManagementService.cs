@@ -9,7 +9,7 @@ using RegistryManagementV3.Models.Domain;
 
 namespace RegistryManagementV3.Services.resources
 {
-    public class UserResourceManagementService : IResourceManagementService
+    public class UserResourceManagementService : ResourceManagementService
     {
         private readonly IUnitOfWork _uow;
 

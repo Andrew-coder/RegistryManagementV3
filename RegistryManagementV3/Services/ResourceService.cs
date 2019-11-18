@@ -129,7 +129,9 @@ namespace RegistryManagementV3.Services
 
         public void MarkResourceAsDeleted(long id)
         {
-            throw new NotImplementedException();
+            var resource =_uow.ResourceRepository.GetById(id);
+            resource.ResourceStatus = ResourceStatus.Removed;
+            _uow.Save();
         }
 
         private static TagResources WireTagWithResource(Tag tag, Resource resource)

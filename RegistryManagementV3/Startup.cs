@@ -57,8 +57,8 @@ namespace RegistryManagementV3
             var userResourceManagementService = new UserResourceManagementService(unitOfWork);
             var adminResourceManagementService = new AdminResourceManagementService(unitOfWork);
             
-            services.AddScoped<IResourceManagementService>(provider => userResourceManagementService);
-            services.AddScoped<IResourceManagementService>(provider => adminResourceManagementService);
+            services.AddScoped<ResourceManagementService>(provider => userResourceManagementService);
+            services.AddScoped<ResourceManagementService>(provider => adminResourceManagementService);
             services.AddScoped<ResourceManagementStrategy>(provider =>
                 new ResourceManagementStrategy(adminResourceManagementService, userResourceManagementService));
             

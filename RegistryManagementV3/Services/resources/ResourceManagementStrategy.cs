@@ -4,18 +4,18 @@ namespace RegistryManagementV3.Services.resources
 {
     public class ResourceManagementStrategy
     {
-        private readonly Dictionary<string, IResourceManagementService> _strategies;
+        private readonly Dictionary<string, ResourceManagementService> _strategies;
 
-        public ResourceManagementStrategy(IResourceManagementService adminResourceManagementService, IResourceManagementService userResourceManagementService)
+        public ResourceManagementStrategy(ResourceManagementService adminResourceManagementService, ResourceManagementService userResourceManagementService)
         {
-            _strategies = new Dictionary<string, IResourceManagementService>
+            _strategies = new Dictionary<string, ResourceManagementService>
             {
                 { "admin", adminResourceManagementService },
                 { "user", userResourceManagementService }
             };
         }
 
-        public IResourceManagementService FindService(string roleName)
+        public ResourceManagementService FindService(string roleName)
         {
             return _strategies.GetValueOrDefault(roleName.ToLower());
         }
