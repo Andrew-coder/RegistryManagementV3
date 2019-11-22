@@ -8,7 +8,7 @@ namespace RegistryManagementV3.Models.Domain
     public sealed class Catalog
     {
         public long Id { get; set; }
-        [Column(TypeName = "NVARCHAR(50)")]
+        [Column(TypeName = "NVARCHAR(100)")]
         public string Name { get; set; }
         [DefaultValue(5)] [Range(1, 10)] public int SecurityLevel { get; set; } = 5;
         public long? SuperCatalogId { get; set; }

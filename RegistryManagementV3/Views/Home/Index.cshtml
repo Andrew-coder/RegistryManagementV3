@@ -5,9 +5,50 @@
 
 <div class="jumbotron">
     <p class="lead">Реєстр міністерства оборони - галузеве міністерство</p>
-   
-</div>
 
-<div class="row">
-    
 </div>
+@if (User.Identity.IsAuthenticated)
+{
+    <h2>Схожі ресурси на переглянуті раніше</h2>
+    <div class="row pull-left">
+        <div class="col-md-3 navbar-nav mr-auto">
+            <div class="col-lg-6">
+                <div class="container body-content container-fluid"/>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h4 class="card-title">Назва: resource2</h4>
+                            <h5 class="card-title">Каталог: Міжнародна співпраця</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Операції</h6>
+                            <a href="/Resource/Edit?id=23" class="card-link">Переглянути та опрацювати</a>
+                            <a href="/Resource/Delete?id=23" class="card-link">Видалити</a>
+                        </div>
+                    </div>
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h4 class="card-title">Назва: resource1</h4>
+                            <h5 class="card-title">Каталог: Міжнародна співпраця</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Операції</h6>
+                            <a href="/Resource/Edit?id=22" class="card-link">Переглянути та опрацювати</a>
+                            <a href="/Resource/Delete?id=22" class="card-link">Видалити</a>
+                        </div>
+                    </div>
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h4 class="card-title">Назва: resource6</h4>
+                            <h6 class="card-subtitle mb-2 text-muted">Операції</h6>
+                            <a href="/Resource/Edit?id=36" class="card-link">Переглянути та опрацювати</a>
+                            <a href="/Resource/Delete?id=36" class="card-link">Видалити</a>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <footer class="navbar-fixed-bottom">
+                    <p>© 2019 - Реєстр кафедри</p>
+                </footer>
+            </div>
+        </div>
+    </div>
+}

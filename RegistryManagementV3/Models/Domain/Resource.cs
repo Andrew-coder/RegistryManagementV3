@@ -12,11 +12,11 @@ namespace RegistryManagementV3.Models.Domain
         [Key]
         public long Id { get; set; }
         
-        [Column(TypeName = "NVARCHAR(50)")]
+        [Column(TypeName = "NVARCHAR(100)")]
         
         public string Title { get; set; }
         
-        [Column(TypeName = "NVARCHAR(50)")]
+        [Column(TypeName = "NVARCHAR(400)")]
         public string Description { get; set; }
         
         [Column(TypeName = "NVARCHAR(50)")]

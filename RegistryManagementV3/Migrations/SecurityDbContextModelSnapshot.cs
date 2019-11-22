@@ -234,7 +234,7 @@ namespace RegistryManagementV3.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
-                        .HasColumnType("NVARCHAR(50)");
+                        .HasColumnType("NVARCHAR(100)");
 
                     b.Property<int>("SecurityLevel")
                         .HasColumnType("int");
@@ -269,7 +269,7 @@ namespace RegistryManagementV3.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasColumnType("NVARCHAR(50)");
+                        .HasColumnType("NVARCHAR(400)");
 
                     b.Property<string>("FileName")
                         .HasColumnType("NVARCHAR(50)");
@@ -296,7 +296,7 @@ namespace RegistryManagementV3.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
-                        .HasColumnType("NVARCHAR(50)");
+                        .HasColumnType("NVARCHAR(100)");
 
                     b.HasKey("Id");
 
