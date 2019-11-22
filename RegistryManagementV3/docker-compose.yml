@@ -5,11 +5,20 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - registry-data:/app/registry_files
+      - "${REGISTRY_FILES_LOCATION}:/app/registry_files"
     depends_on:
       - mssql
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+
+  proxy:
+    image: nginx:latest
+    depends_on:
+      - web
+    volumes:
+      - /Users/ioneuk/Documents/diplom/RegistryManagementV3/RegistryManagementV3/nginx.info:/etc/nginx/nginx.conf
+    ports:
+      - "81:81"
   
   mssql:
     image: "mcr.microsoft.com/mssql/server:2017-CU14-ubuntu"

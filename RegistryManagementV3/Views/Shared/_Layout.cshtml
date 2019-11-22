@@ -86,33 +86,30 @@
                                              <div class="dropdown-menu dropdown-menu-right" role="menu">
 
                                                  <form action="/Search/SearchFilters" method="post" class="form-horizontal" role="form">
+                                                     <label class="filter">Впорядкування</label>
                                                      <div class="form-group">
-                                                         <label for="filter">Фільтрувати за</label>
+                                                         <label for="filter">Впорядкувати за</label>
                                                          <select class="form-control" name="OrderBy">
                                                              <option value="Priority" selected>Пріоритетом</option>
                                                              <option value="CreationTimestamp">Датою створення</option>
                                                              <option value="Format">форматом</option>
                                                          </select>
                                                      </div>
+                                                     <label for="filter">Фільтрування</label>
                                                      <div class="form-group">
-                                                         <label for="contain">Назва/Опис/Імя файла</label>
-                                                         <input class="form-control" name="Query" type="text" value="@ViewData["query"]"/>
+                                                         <input class="form-control" name="Query" type="text" placeholder="Введіть або назву або опис або імя файла" value="@ViewData["query"]"/>
                                                      </div>
                                                      <div class="form-group">
-                                                         <label for="contain">Дата створення</label>
-                                                         <input type="text" class="form-control daterange" name="CreationDateRange" value="@ViewData["creationDateRange"]"/>
+                                                         <input type="text" class="form-control daterange" name="CreationDateRange" placeholder = "Дата створення" value="@ViewData["creationDateRange"]"/>
                                                      </div>
                                                      <div class="form-group">
-                                                         <label for="contain">Дата затвердження</label>
-                                                         <input type="text" class="form-control daterange" name="ApprovalDateRange" value="@ViewData["approvalDateRange"]"/>
+                                                         <input type="text" class="form-control daterange" name="ApprovalDateRange" placeholder="Дата затвердження" value="@ViewData["approvalDateRange"]"/>
                                                      </div>
                                                      <div class="form-group">
-                                                         <label for="contain">Автор</label>
-                                                         <input class="form-control" name="Author" type="text" value="@ViewData["author"]"/>
+                                                         <input class="form-control" name="Author" type="text" placeholder="Автор" value="@ViewData["author"]"/>
                                                      </div>
                                                      <div class="form-group">
-                                                         <label for="contain">Містить ключові слова</label>
-                                                         <input class="form-control" name="Tags" type="text" value="@ViewData["tags"]"/>
+                                                         <input class="form-control" name="Tags" type="text" placeholder="ключові слова" value="@ViewData["tags"]"/>
                                                      </div>
                                                      <button type="submit" class="btn btn-primary">
                                                          <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
@@ -120,9 +117,6 @@
                                                  </form>
                                              </div>
                                          </div>
-                                         <button type="button" class="btn btn-primary">
-                                             <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                                         </button>
                                      </div>
                                  </div>
                              </div>
