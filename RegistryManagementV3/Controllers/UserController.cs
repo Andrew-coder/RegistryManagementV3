@@ -17,16 +17,16 @@ namespace RegistryManagementV3.Controllers
     public class UserController : Controller 
     {
         private readonly SecurityDbContext _dbContext; 
-        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUserGroupService _userGroupService;
+        private readonly IUserService _userService;
 
-        public UserController(SecurityDbContext dbContext, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IUserGroupService userGroupService)
+        public UserController(SecurityDbContext dbContext, UserManager<ApplicationUser> userManager, IUserGroupService userGroupService, IUserService userService)
         {
             _dbContext = dbContext;
-            _signInManager = signInManager;
             _userManager = userManager;
             _userGroupService = userGroupService;
+            _userService = userService;
         }
 
         // GET: User
@@ -88,10 +88,10 @@ namespace RegistryManagementV3.Controllers
                 AccessFailedCount = applicationUser.AccessFailedCount,
                 AccountStatus = applicationUser.AccountStatus.ToString(),
                 UserName = applicationUser.UserName,
-                UserGroup = applicationUser.UserGroup?.Name
+//                UserGroup = applicationUser.UserGroup?.Name
             };
-            var userInfo = new Tuple<ApplicationUserViewModel, List<IdentityRole>>(userViewModel, roles);
-            return View(userInfo);
+//            var userInfo = new Tuple<ApplicationUserViewModel, List<IdentityRole>>(userViewModel, roles);
+            return View(userViewModel);
         }
 
         // POST: User/Edit/5
@@ -112,8 +112,8 @@ namespace RegistryManagementV3.Controllers
                 return RedirectToAction("Index");
             }
             var userGroups = _userGroupService.GetAllUserGroups();
-            var userInfo = new Tuple<ApplicationUserViewModel, List<UserGroup>>(applicationUser, userGroups);
-            return View(userInfo);
+//            var userInfo = new Tuple<ApplicationUserViewModel, List<UserGroup>>(applicationUser, userGroups);
+            return View(applicationUser);
         }
 
         // GET: User/Delete/5
@@ -144,9 +144,7 @@ namespace RegistryManagementV3.Controllers
 
         public async Task<ActionResult> Approve(string id)
         {
-            var applicationUser = await _userManager.FindByIdAsync(id);
-            applicationUser.AccountStatus = AccountStatus.Approved;
-            await _userManager.UpdateAsync(applicationUser);
+            await _userService.ApproveUserRegistrationByIdAsync(id);
             return RedirectToAction("Index");
         }
     }

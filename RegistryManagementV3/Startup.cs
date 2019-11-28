@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Amazon.Runtime;
+using Amazon.SimpleNotificationService;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -17,6 +19,7 @@ using RegistryManagementV3.Models;
 using RegistryManagementV3.Models.Domain;
 using RegistryManagementV3.Models.Repository;
 using RegistryManagementV3.Services;
+using RegistryManagementV3.Services.Notifications;
 using RegistryManagementV3.Services.resources;
 
 namespace RegistryManagementV3
@@ -53,10 +56,21 @@ namespace RegistryManagementV3
             
             services.AddScoped<ISearchService>(provider => new SearchService(unitOfWork));
             services.AddScoped<IUserGroupService>(provider => new UserGroupService(unitOfWork));
-            services.AddScoped<IUserService>(provider => new UserService(unitOfWork));
 
             var userResourceManagementService = new UserResourceManagementService(unitOfWork);
             var adminResourceManagementService = new AdminResourceManagementService(unitOfWork);
+
+            var awsOptions = Configuration.GetAWSOptions();
+            services.AddDefaultAWSOptions(awsOptions);
+            var awsAccessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
+            var awsSecretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
+            var amazonSimpleNotificationServiceClient = new AmazonSimpleNotificationServiceClient(new BasicAWSCredentials(awsAccessKeyId, awsSecretAccessKey), awsOptions.Region);
+            services.AddScoped<IAmazonSimpleNotificationService>(provider => amazonSimpleNotificationServiceClient);
+            var userNotifier =
+                new AwsUserNotifier(amazonSimpleNotificationServiceClient);
+            
+            services.AddScoped<IUserNotifier>(provider => userNotifier);
+            services.AddScoped<IUserService>(provider => new UserService(unitOfWork, userNotifier));
             
             services.AddScoped<ResourceManagementService>(provider => userResourceManagementService);
             services.AddScoped<ResourceManagementService>(provider => adminResourceManagementService);

@@ -6,10 +6,15 @@ services:
       - "8080:80"
     volumes:
       - "${REGISTRY_FILES_LOCATION}:/app/registry_files"
+      - "${RSA_KEYS_LOCATION}:/app/rsa_keys"
+      - "${AWS_CREDENTIAL_FILE_LOCATION}:/home/.aws/credentials"
     depends_on:
       - mssql
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - AWS_PROFILE=sns-admin
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 
   proxy:
     image: nginx:latest

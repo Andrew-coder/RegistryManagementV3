@@ -16,6 +16,8 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
         <PackageReference Include="LinqKit.Microsoft.EntityFrameworkCore" Version="1.1.17-preview-04" />
+        <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.3.11" />
+        <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.3.101.92" />
     </ItemGroup>
 
     <ItemGroup>
