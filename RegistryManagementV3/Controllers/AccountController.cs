@@ -1,11 +1,12 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Logging;
 using RegistryManagementV3.Models;
 using RegistryManagementV3.Models.Domain;
+using RegistryManagementV3.Services.Notifications;
 
 namespace RegistryManagementV3.Controllers
 {
@@ -14,11 +15,16 @@ namespace RegistryManagementV3.Controllers
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ISmsUserNotifier _smsUserNotifier;
+        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
+            ISmsUserNotifier smsUserNotifier, ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _smsUserNotifier = smsUserNotifier;
+            _logger = logger;
         }
 
         //
@@ -41,6 +47,10 @@ namespace RegistryManagementV3.Controllers
             {
                 var result = 
                     await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, false);
+                if (result.RequiresTwoFactor)
+                {
+                    return RedirectToAction("GetTwoFactorAuthentication", new {ReturnUrl = returnUrl });
+                }
                 if (result.Succeeded)
                 {
                     var redirectUrl = string.IsNullOrWhiteSpace(returnUrl) ? "/Home/Index" : returnUrl;
@@ -52,6 +62,52 @@ namespace RegistryManagementV3.Controllers
 //                }
             }
             return View(model);
+        }
+        
+        // GET: /Login/Get2FA
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetTwoFactorAuthentication(string returnUrl = null)
+        {
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+            if (user == null)
+            {
+                return RedirectToAction("Login", new {ReturnUrl = returnUrl});
+            }
+
+            await NotifyUserWithSms(user);
+            var model = new VerifyCodeViewModel {Provider = TokenOptions.DefaultPhoneProvider, ReturnUrl = returnUrl};
+            return View("VerifyCode", model);
+        }
+
+        // POST: /Login/VerifyTwoFactorAuthentication
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VerifyTwoFactorAuthentication(VerifyCodeViewModel model, string returnUrl = null)
+        {
+            ViewBag.ReturnUrl = returnUrl;
+ 
+            if (ModelState.IsValid)
+            {
+                var result = await _signInManager.TwoFactorSignInAsync(model.Provider, model.Code, false, false);
+                if (result.Succeeded)
+                {
+                    if (returnUrl != null)
+                        return Redirect(returnUrl);
+ 
+                    return RedirectToAction("Index", "Home");
+                }
+ 
+                if (result.IsLockedOut)
+                {
+                    ViewBag.ErrorMessage = "You are locked out";
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+	
+            ViewBag.ErrorMessage = "Token is invalid";
+            return View("VerifyCode", model);
         }
 
         //
@@ -86,14 +142,27 @@ namespace RegistryManagementV3.Controllers
             // If we got this far, something failed, redisplay form
             return View(model);
         }
-
-        //
+        
         // GET: /Account/LogOff
         [HttpGet]
         public async Task<ActionResult> LogOff()
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
+        }
+        
+        private async Task NotifyUserWithSms(ApplicationUser user)
+        {
+            var token = await _userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultPhoneProvider);
+            _logger.LogInformation("Generate one time password: {Token} for user with id: {UserId}", token, user.Id);
+            var notificationDto = new UserNotificationDto
+            {
+                PhoneNumbers = new List<string> {user.PhoneNumber},
+                NotificationType = NotificationType.RmAuthOtp,
+                Content = $"One time password: {token}"
+            };
+            await _smsUserNotifier.NotifyAsync(notificationDto);
+            
         }
 
         private void AddErrors(IdentityResult result)

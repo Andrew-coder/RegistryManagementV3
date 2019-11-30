@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace RegistryManagementV3
 {
@@ -12,6 +13,7 @@ namespace RegistryManagementV3
 
         private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureLogging(logging => logging.SetMinimumLevel(LogLevel.Information))
                 .UseStartup<Startup>();
     }
 }

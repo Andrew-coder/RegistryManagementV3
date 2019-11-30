@@ -67,9 +67,9 @@ namespace RegistryManagementV3
             var amazonSimpleNotificationServiceClient = new AmazonSimpleNotificationServiceClient(new BasicAWSCredentials(awsAccessKeyId, awsSecretAccessKey), awsOptions.Region);
             services.AddScoped<IAmazonSimpleNotificationService>(provider => amazonSimpleNotificationServiceClient);
             var userNotifier =
-                new AwsUserNotifier(amazonSimpleNotificationServiceClient);
+                new AwsSmsUserNotifier(amazonSimpleNotificationServiceClient);
             
-            services.AddScoped<IUserNotifier>(provider => userNotifier);
+            services.AddScoped<ISmsUserNotifier>(provider => userNotifier);
             services.AddScoped<IUserService>(provider => new UserService(unitOfWork, userNotifier));
             
             services.AddScoped<ResourceManagementService>(provider => userResourceManagementService);

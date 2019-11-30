@@ -6,7 +6,6 @@ services:
       - "8080:80"
     volumes:
       - "${REGISTRY_FILES_LOCATION}:/app/registry_files"
-      - "${RSA_KEYS_LOCATION}:/app/rsa_keys"
       - "${AWS_CREDENTIAL_FILE_LOCATION}:/home/.aws/credentials"
     depends_on:
       - mssql

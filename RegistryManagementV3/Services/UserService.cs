@@ -8,12 +8,12 @@ namespace RegistryManagementV3.Services
     public class UserService : IUserService
     {
         private readonly IUnitOfWork _uow;
-        private readonly IUserNotifier _userNotifier;
+        private readonly ISmsUserNotifier _smsUserNotifier;
 
-        public UserService(IUnitOfWork uow, IUserNotifier userNotifier)
+        public UserService(IUnitOfWork uow, ISmsUserNotifier smsUserNotifier)
         {
             _uow = uow;
-            _userNotifier = userNotifier;
+            _smsUserNotifier = smsUserNotifier;
         }
 
         public ApplicationUser GetById(string id)
@@ -29,11 +29,11 @@ namespace RegistryManagementV3.Services
 
             var notification = new UserNotificationDto
             {
-                Protocol = "sms", Content = "Your registration was successful",
+                Content = "Your registration was successful",
                 NotificationType = NotificationType.RmRegistrationApproved,
                 PhoneNumbers = new[] {user.PhoneNumber}
             };
-            return _userNotifier.NotifyAsync(notification);
+            return _smsUserNotifier.NotifyAsync(notification);
         }
 
         public void SetTwoFactorEnabled(ApplicationUser user, bool isTwoFactorEnabled)

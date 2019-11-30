@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 
 namespace RegistryManagementV3.Services.Notifications
 {
-    public interface IUserNotifier
+    public interface ISmsUserNotifier
     {
         Task NotifyAsync(UserNotificationDto userNotification);
     }

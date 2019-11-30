@@ -13,11 +13,11 @@
             [
             @if (Model.HasPassword)
             {
-                @Html.ActionLink("Change your password", "ChangePassword")
+                @Html.ActionLink("Change your password", "ChangePassword", "Manage")
             }
             else
             {
-                @Html.ActionLink("Create", "SetPassword")
+                @Html.ActionLink("Create", "SetPassword", "Manage")
             }
             ]
         </dd>
@@ -31,13 +31,13 @@
             @(Model.PhoneNumber ?? "None") [
             @if (Model.PhoneNumber != null)
             {
-                @Html.ActionLink("Change", "AddPhoneNumber")
+                @Html.ActionLink("Change", "AddPhoneNumber", "Manage")
                 @: &nbsp;|&nbsp;
-                @Html.ActionLink("Remove", "RemovePhoneNumber")
+                @Html.ActionLink("Remove", "RemovePhoneNumber", "Manage")
             }
             else
             {
-                @Html.ActionLink("Add", "AddPhoneNumber")
+                @Html.ActionLink("Add", "AddPhoneNumber", "Manage")
             }
             ]
         </dd>

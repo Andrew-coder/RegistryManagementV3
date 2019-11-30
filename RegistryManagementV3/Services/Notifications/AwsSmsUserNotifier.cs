@@ -6,8 +6,9 @@ using Amazon.SimpleNotificationService.Model;
 
 namespace RegistryManagementV3.Services.Notifications
 {
-    public class AwsUserNotifier : IUserNotifier
+    public class AwsSmsUserNotifier : ISmsUserNotifier
     {
+        private const string AwsNotificationProtocolName = "sms";
         private readonly IAmazonSimpleNotificationService _snsClient;
         
         private readonly IDictionary<NotificationType, string> _topicNames = new Dictionary<NotificationType, string>
@@ -17,7 +18,7 @@ namespace RegistryManagementV3.Services.Notifications
             { NotificationType.RmRegistrationApproved, "rm_permission_changed"}
         };
 
-        public AwsUserNotifier(IAmazonSimpleNotificationService snsClient)
+        public AwsSmsUserNotifier(IAmazonSimpleNotificationService snsClient)
         {
             _snsClient = snsClient;
         }
@@ -37,7 +38,7 @@ namespace RegistryManagementV3.Services.Notifications
         private Task PublishNotificationToCreatedTopic(CreateTopicResponse topicResponse,
             UserNotificationDto userNotification)
         {
-            return SubscribeToTopic(topicResponse, userNotification.Protocol,
+            return SubscribeToTopic(topicResponse, AwsNotificationProtocolName,
                     userNotification.PhoneNumbers)
                 .ContinueWith(response => PublishMessageToTopic(userNotification.Content, topicResponse.TopicArn))
                 .ContinueWith(response => DeleteTopic(topicResponse.TopicArn));
