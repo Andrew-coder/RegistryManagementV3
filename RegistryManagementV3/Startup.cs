@@ -66,11 +66,14 @@ namespace RegistryManagementV3
             var awsSecretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
             var amazonSimpleNotificationServiceClient = new AmazonSimpleNotificationServiceClient(new BasicAWSCredentials(awsAccessKeyId, awsSecretAccessKey), awsOptions.Region);
             services.AddScoped<IAmazonSimpleNotificationService>(provider => amazonSimpleNotificationServiceClient);
-            var userNotifier =
+            var smsNotifier =
                 new AwsSmsUserNotifier(amazonSimpleNotificationServiceClient);
+            var emailNotifier =
+                new AwsEmailUserNotifier(amazonSimpleNotificationServiceClient);
             
-            services.AddScoped<ISmsUserNotifier>(provider => userNotifier);
-            services.AddScoped<IUserService>(provider => new UserService(unitOfWork, userNotifier));
+            services.AddScoped<ISmsUserNotifier>(provider => smsNotifier);
+            services.AddScoped<IEmailUserNotifier>(provider => emailNotifier);
+            services.AddScoped<IUserService>(provider => new UserService(unitOfWork, smsNotifier));
             
             services.AddScoped<ResourceManagementService>(provider => userResourceManagementService);
             services.AddScoped<ResourceManagementService>(provider => adminResourceManagementService);

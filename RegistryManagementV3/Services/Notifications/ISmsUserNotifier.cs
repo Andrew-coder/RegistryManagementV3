@@ -4,6 +4,6 @@ namespace RegistryManagementV3.Services.Notifications
 {
     public interface ISmsUserNotifier
     {
-        Task NotifyAsync(UserNotificationDto userNotification);
+        Task NotifyAsync(SmsNotificationDto smsNotification);
     }
 }

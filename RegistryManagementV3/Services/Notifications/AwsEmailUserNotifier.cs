@@ -6,27 +6,26 @@ using Amazon.SimpleNotificationService.Model;
 
 namespace RegistryManagementV3.Services.Notifications
 {
-    public class AwsSmsUserNotifier : ISmsUserNotifier
+    public class AwsEmailUserNotifier : IEmailUserNotifier
     {
-        private const string AwsNotificationProtocolName = "sms";
+        
+        private const string AwsNotificationProtocolName = "Email";
         private readonly IAmazonSimpleNotificationService _snsClient;
         
         private readonly IDictionary<NotificationType, string> _topicNames = new Dictionary<NotificationType, string>
         {
-            { NotificationType.RmAuthOtp, "rm_auth_otp" },
-            { NotificationType.RmPermissionChanged, "rm_registration_approved"},
-            { NotificationType.RmRegistrationApproved, "rm_permission_changed"}
+            { NotificationType.RmRestorePassword, "rm_restore_password" }
         };
 
-        public AwsSmsUserNotifier(IAmazonSimpleNotificationService snsClient)
+        public AwsEmailUserNotifier(IAmazonSimpleNotificationService snsClient)
         {
             _snsClient = snsClient;
         }
 
-        public async Task NotifyAsync(SmsNotificationDto smsNotification)
+        public async Task NotifyAsync(EmailNotificationDto emailNotification)
         {
-            await CreateSnsTopic(_topicNames[smsNotification.NotificationType])
-                .ContinueWith(topicResponse => PublishNotificationToCreatedTopic(topicResponse.Result, smsNotification));
+            await CreateSnsTopic(_topicNames[emailNotification.NotificationType])
+                .ContinueWith(topicResponse => PublishNotificationToCreatedTopic(topicResponse.Result, emailNotification));
         }
         
         private Task<CreateTopicResponse> CreateSnsTopic(string topicName)
@@ -36,11 +35,11 @@ namespace RegistryManagementV3.Services.Notifications
         }
 
         private Task PublishNotificationToCreatedTopic(CreateTopicResponse topicResponse,
-            SmsNotificationDto smsNotification)
+            EmailNotificationDto emailNotification)
         {
             return SubscribeToTopic(topicResponse, AwsNotificationProtocolName,
-                    smsNotification.PhoneNumbers)
-                .ContinueWith(response => PublishMessageToTopic(smsNotification.Content, topicResponse.TopicArn))
+                    emailNotification.Emails)
+                .ContinueWith(response => PublishMessageToTopic(emailNotification.Content, topicResponse.TopicArn))
                 .ContinueWith(response => DeleteTopic(topicResponse.TopicArn));
         }
         

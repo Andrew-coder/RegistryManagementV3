@@ -4,6 +4,7 @@ namespace RegistryManagementV3.Services.Notifications
     {
         RmAuthOtp,
         RmRegistrationApproved,
-        RmPermissionChanged
+        RmPermissionChanged,
+        RmRestorePassword
     }
 }

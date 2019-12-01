@@ -16,14 +16,16 @@ namespace RegistryManagementV3.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ISmsUserNotifier _smsUserNotifier;
+        private readonly IEmailUserNotifier _emailUserNotifier;
         private readonly ILogger<AccountController> _logger;
 
         public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
-            ISmsUserNotifier smsUserNotifier, ILogger<AccountController> logger)
+            ISmsUserNotifier smsUserNotifier, IEmailUserNotifier emailUserNotifier, ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _smsUserNotifier = smsUserNotifier;
+            _emailUserNotifier = emailUserNotifier;
             _logger = logger;
         }
 
@@ -143,6 +145,91 @@ namespace RegistryManagementV3.Controllers
             return View(model);
         }
         
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                {
+                    return RedirectToAction(nameof(ForgotPasswordConfirmation));
+                }
+                
+                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var callbackUrl = Url.Action("ResetPassword", "Account", 
+                    new { userId = user.Id, code = code }, protocol: Request.Scheme);
+                _logger.LogInformation("Generate restore link: {CallbackUrl} for user with id: {UserId}", callbackUrl,
+                    user.Id);
+                await _emailUserNotifier.NotifyAsync(new EmailNotificationDto
+                {
+                    Emails = new List<string> {model.Email}, NotificationType = NotificationType.RmRestorePassword,
+                    Content = $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>"
+                });
+                return RedirectToAction(nameof(ForgotPasswordConfirmation));
+            }
+
+            return View(model);
+        }
+        
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPasswordConfirmation()
+        {
+            return View();
+        }
+        
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPassword(string code = null)
+        {
+            if (code == null)
+            {
+                return View("UnexistedEmail");
+            }
+            var model = new ResetPasswordViewModel { Code = code };
+            return View(model);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                return View("UnexistedEmail");
+            }
+            var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
+            if (result.Succeeded)
+            {
+                return RedirectToAction(nameof(ResetPasswordConfirmation));
+            }
+            AddErrors(result);
+            return View();
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPasswordConfirmation()
+        {
+            return View();
+        }
+        
         // GET: /Account/LogOff
         [HttpGet]
         public async Task<ActionResult> LogOff()
@@ -155,7 +242,7 @@ namespace RegistryManagementV3.Controllers
         {
             var token = await _userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultPhoneProvider);
             _logger.LogInformation("Generate one time password: {Token} for user with id: {UserId}", token, user.Id);
-            var notificationDto = new UserNotificationDto
+            var notificationDto = new SmsNotificationDto
             {
                 PhoneNumbers = new List<string> {user.PhoneNumber},
                 NotificationType = NotificationType.RmAuthOtp,

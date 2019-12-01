@@ -27,7 +27,7 @@ namespace RegistryManagementV3.Services
             user.AccountStatus = AccountStatus.Approved;
             _uow.Save();
 
-            var notification = new UserNotificationDto
+            var notification = new SmsNotificationDto
             {
                 Content = "Your registration was successful",
                 NotificationType = NotificationType.RmRegistrationApproved,

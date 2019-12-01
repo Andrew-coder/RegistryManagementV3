@@ -112,7 +112,7 @@ namespace RegistryManagementV3.Controllers
             _logger.LogInformation("Generate one time password: {Code} for user with id: {UserId}", code, user.Id);
             if (_smsUserNotifier != null)
             {
-                var userNotificationDto = new UserNotificationDto()
+                var userNotificationDto = new SmsNotificationDto()
                 {
                     PhoneNumbers = new List<string> {phoneNumber},
                     Content = "Your security code is: " + code
@@ -142,7 +142,6 @@ namespace RegistryManagementV3.Controllers
                 }
                 return RedirectToAction("Index", new { Message = ManageMessageId.AddPhoneSuccess });
             }
-            // If we got this far, something failed, redisplay form
             ModelState.AddModelError("", "Failed to verify phone");
             return View(model);
         }
